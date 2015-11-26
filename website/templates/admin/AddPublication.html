@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+        <h2>Add Publication</h2>
+		<p class="notify">
+		Note: To delete or modify a publication, use the admin view (see link in footer).
+		</p>
+		<form method="post" class="addP">
+		{% csrf_token %}
+		<table id="addP-form" >
+		{% for field in form %}
+		<tr>
+			<td>
+			
+			{{field.label_tag}} <br>
+			<div class="helpT">{{field.help_text}}<div>
+			
+			
+			</td>
+		<td {% if field.errors %}class="error"{% endif %}>
+						{{ field }}
+		                {% if field.errors %}
+		                {% endif %}
+					</td>
+		</tr>
+		{% endfor %}
+		</table>
+		<button type="submit" class="submit-form">Add Publication</button>
+		</form>
+		
+		
+
+{% endblock %}

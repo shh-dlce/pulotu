@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block content %}
+<div class="page-header">
+<h1>Account Locked</h1></div>
+
+<div class="locked">
+Your account has been locked due to too many failed login attempts.  To reset your account password and unlock your account, click the link below.
+<p>
+<a class="lock" href="{% url "passwordreset" %}">Reset my password</a>
+<p>
+Note: if you see this page and you have already reset your password, try closing the website and then re-opening it.
+</div>
+{% endblock %}

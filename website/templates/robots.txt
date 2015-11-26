@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /admin/
+
+Sitemap: http://{{ SITE_DOMAIN }}/sitemap.xml

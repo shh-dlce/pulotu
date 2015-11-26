@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load website_tags %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block title %}
+	{% if culture %}
+		Editing: {{ culture }}
+	{% else %}
+		Adding a culture
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Culture: {{ culture }}</h1>
+    </div>
+	<p class="notify">Note: to add a language, begin typing the name of the language into the field and select the correct language. Be patient :)</p>
+    <form action="{% if culture %}{% url "culture-edit" culture.slug %}{% else %}{% url "culture-add" %}{% endif %}" method="post" class="form-inline">
+        {% csrf_token %}
+		{{ form.management_form }}
+		{{ form.id.as_hidden }}
+ {% if form.non_field_errors %}
+<div class="validation-err">{{form.non_field_errors}}</div>{% endif%}       
+		<table id="culture-form" class="table table-bordered table-condensed">
+			{% for field in form %}
+                <tr>
+					<th class="span6"> 
+						<p>{{ field.label_tag }}</p>
+						<p class="help-block">{{ field.help_text }}</p>
+					</th class="span8">
+					<td {% if field.errors %}class="error"{% endif %}>
+						{{ field }}
+		                {% if field.errors %}
+							
+							
+		                {% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+        <button type="submit" class="submit-form">Save Culture </button>
+    </form>
+{% endblock %}
+
+
+
+{% block end %}
+    <script>
+        $(document).ready(function() {
+          $('.tip').tooltip();
+        });
+    </script>
+{% endblock %}

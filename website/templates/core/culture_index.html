@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load staticfiles %}
+{% load website_tags %}
+{% load cache %}
+
+{% cache 1800 culture_index %}
+{% block title %} Cultures: {% endblock %}
+
+   
+{% block content %}
+<script type="text/javascript">function getCultures() {
+			var js_list = "{{latlong}}";
+			js_list = js_list.substring(1, js_list.length-1);
+		var test = js_list.split(", ");
+			var lat, longi, culture, slug;
+			var coordinates = new Array();
+			var j= 0;
+			for (i = 0; i < test.length; i=i+4) {
+				if (test[i] != "") {
+					lat = test[i].substr(test[i].indexOf(": ")+1);
+				
+					culture = test[i+1].substring(test[i+1].indexOf(": ")+8, test[i+1].length-5);
+					
+					slug = test[i+2].substring(test[i+2].indexOf(": ")+8, test[i+2].length-5);
+				
+					longi = test[i+3].substring(test[i+3].indexOf(": ")+1, test[i+3].length-1);
+					
+					coordinates[j] = lat;
+					j++;
+					coordinates[j] = longi;
+					j++;
+					coordinates[j] = culture;
+					j++;
+					coordinates[j] = slug;
+					j++;
+				} else {
+					continue;
+				}
+			}
+			
+	
+
+			return coordinates;
+		}
+		
+		var map, layer;
+        function init(){
+		var coordinates = getCultures();		
+        map = new OpenLayers.Map( 'map');
+
+		var mapnik         = new OpenLayers.Layer.OSM();
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+
+        var position       = new OpenLayers.LonLat(179.860048, -6.880166).transform( fromProjection, toProjection);
+        var zoom           = 2; 
+ 
+        map.addLayer(mapnik);
+        map.setCenter(position, zoom);
+		var markers = new OpenLayers.Layer.Markers( "Markers" );
+		
+		var array = new Array();
+		
+		for (i = 0; i < coordinates.length-1; i++) {
+			array[i] = new OpenLayers.LonLat(parseFloat(coordinates[i+1]), parseFloat(coordinates[i])).transform(fromProjection, toProjection);
+		}
+		var styleMap = new OpenLayers.StyleMap({pointRadius: 6,
+						});
+		var vectors = new OpenLayers.Layer.Vector("Vector Layer", {renderers: ['Canvas', 'VML', 'SVG'],});
+		vectors.events.register("featureselected", vectors, linkHandler);
+		//map.addLayer(vectors);
+		var markers = [];
+		for (i = 0; i < array.length; i++) {
+			markers[i] = new OpenLayers.Feature.Vector(
+				new OpenLayers.Geometry.Point(array[i].lon, array[i].lat),
+				{
+					culture: coordinates[i+2], //not sure if this is the best way! get culture name
+					slug: coordinates[i+3] //get slug for URL redirection
+				});
+			//marker = new OpenLayers.Marker(array[i]);
+			//markers.addMarker(marker);
+		}
+		
+		map.addLayer(vectors);
+		vectors.addFeatures(markers);
+		var fpControl = new OpenLayers.Control.FeaturePopups({
+			boxSelectionOptions: {},
+
+			layers: [
+				[
+				vectors, {templates: {
+					hover: '${.culture}'
+				}}]
+			]
+		});
+		
+		var selectCtrl = new OpenLayers.Control.SelectFeature(vectors, 
+		{clickout:true,
+		});
+		map.addControl(selectCtrl);
+		map.addControl(fpControl);
+		
+		selectCtrl.activate();
+		
+		//markers.addMarker(new OpenLayers.Marker(position));
+		
+		//position = new OpenLayers.LonLat( -0.1244324, 51.5006728).transform( fromProjection, toProjection);
+		//markers.addMarker(new OpenLayers.Marker(position));
+        }
+		
+		function linkHandler(e) { //if they click on a marker, take them to the culture detail page
+			location.href = e.feature.attributes.slug;
+		}
+		
+		
+		
+
+    </script>
+  <body onload="init();">
+  
+  <div class="page-header">
+        <h1>Cultures</h1>
+    </div>
+    <div class="mapholder">
+	<div class="creds">
+	<div class= "logo-title">{{SITE_NAME}}.com</div>
+	
+	</div>
+	<div id="map" ></div>
+	
+	</div>
+
+	<div class = "alphabets">
+    <ul class = "sortCultures">
+      <li><a href="#A">A</a></li>
+        <li><a href="#B">B</a></li>
+        <li><a href="#C">C</a></li>
+        <li><a href="#D">D</a></li>
+        <li><a href="#E">E</a></li>
+        <li><a href="#F">F</a></li>
+        <li><a href="#G">G</a></li>
+        <li><a href="#H">H</a></li>
+        <li><a href="#I">I</a></li>
+        <li><a href="#J">J</a></li>
+        <li><a href="#K">K</a></li>
+        <li><a href="#L">L</a></li>
+        <li><a href="#M">M</a></li>
+        <li><a href="#N">N</a></li>
+        <li><a href="#O">O</a></li>
+        <li><a href="#P">P</a></li>
+        <li><a href="#Q">Q</a></li>
+        <li><a href="#R">R</a></li>
+        <li><a href="#S">S</a></li>
+        <li><a href="#T">T</a></li>
+        <li><a href="#U">U</a></li>
+        <li><a href="#V">V</a></li>
+        <li><a href="#W">W</a></li>
+        <li><a href="#X">X</a></li>
+        <li><a href="#Y">Y</a></li>
+        <li><a href="#Z">Z</a></li>
+
+	</ul>
+	</div>	
+	
+	  <table id="cults">
+	  {% for key, value in ethonyms.items %}
+	  <tr id="{{key}}" class="letter-title"><td>{{key}}</td></tr>
+	  {% for v in value %}
+	 {% if v %}
+	  <tr class="culture-link"><td><a href="{% url "culture-detail" v.slug %}">{{v.culture}}</a></td></tr>
+	  {% elif value|onlyone %}
+	  <tr class="empty"></tr>
+	  {% endif %}
+	  {% endfor %}
+	  
+	  {% endfor %}
+
+	  </table>
+		</body>
+{% endblock %}
+{% endcache %}

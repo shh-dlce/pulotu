@@ -1,0 +1,76 @@
+[
+{
+  "pk": 1, 
+  "model": "core.source", 
+  "fields": {
+    "comment": "", 
+    "added": "2013-10-31T22:33:55.712Z", 
+    "reference": "Greenhill SJ (1991). An interesting book. Publisher: Place", 
+    "author": "Greenhill", 
+    "bibtex": null, 
+    "editor": 1, 
+    "year": 1991, 
+    "slug": "greenhill1991"
+  }
+},
+{
+  "pk": 2, 
+  "model": "core.source", 
+  "fields": {
+    "comment": "", 
+    "added": "2013-10-31T22:33:55.728Z", 
+    "reference": "Firth, R. (1936). We the Tikopia: A Sociological Study of Kinship in Primitive Polynesia London: Allen and Unwin", 
+    "author": "Firth", 
+    "bibtex": null, 
+    "editor": 1, 
+    "year": 1936, 
+    "slug": "firth1936"
+  }
+},
+{
+  "pk": 1, 
+  "model": "core.culture", 
+  "fields": {
+    "added": "2013-10-31T22:24:43.524Z", 
+    "notes": null, 
+    "languages": [
+      680
+    ], 
+    "culture": "Maori", 
+    "editor": 1, 
+    "slug": "maori"
+  }
+},
+{
+  "pk": 2, 
+  "model": "core.culture", 
+  "fields": {
+    "added": "2013-10-31T22:25:00.027Z", 
+    "notes": null, 
+    "languages": [
+      1194
+    ], 
+    "culture": "Wogeo", 
+    "editor": 1, 
+    "slug": "wogeo"
+  }
+},
+{
+  "pk": 3, 
+  "model": "core.culture", 
+  "fields": {
+    "added": "2013-10-31T22:25:34.339Z", 
+    "notes": null, 
+    "languages": [
+      1033, 
+      1034, 
+      1037, 
+      770, 
+      1038
+    ], 
+    "culture": "Tanna", 
+    "editor": 1, 
+    "slug": "tanna"
+  }
+}
+]

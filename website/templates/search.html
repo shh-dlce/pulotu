@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load website_tags %}
+
+{% block title %}
+Search Results{% endblock %}
+
+
+{% block head %}
+<script type="text/javascript">
+
+</script>
+{% endblock %}
+{% block content %}
+        <div class="page-header">
+		<h1>Search Results: {{request.GET.urlencode|getsearchterm}}</h1></div>
+	
+{% if search_results %}
+<table style="margin-top:-15px;">
+  {% for result in search_results %}
+  <tr> 
+    <td class="title">{% if result.url %} <a href="{{result.url}}">{{result.title}}</a> {% else %} <a href="/glossary#{{result.title|firstletter}}">{{result.title}}</a>{% endif %}</td>
+    <td class="description">
+<p class="synonyms">{{result.content}}</p>
+{% if result.url %} {{result.object.notes}} <em style="font-size:17px;">(from <a href="{{result.url}}">culture profile</a>) </em>{% else %}{{result.description}}  <em style="font-size:17px;">(from <a href="/glossary#{{result.title|firstletter}}">glossary</a>) </em>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  
+
+
+</table>
+{% else %}
+<p style = "font-size:18px; color:8d8d8d; text-align:center;">Sorry, no results found.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<script type="text/javascript">
+$(document).ready(function(){ 
+$.fn.toggleHTML = function(a, b) {
+    this.html(function(_, html) {
+        return $.trim(html) === a ? b : a;
+    });
+}
+    $(".answer").hide();
+    $(".faqquestion").bind("click", function() {
+        answer = $(this).parent().children("div.answer");
+        $(this).children("a").toggleHTML('+', '-');
+        $(answer).slideToggle();
+        return false;
+    });
+
+})
+</script>
+
+<div class="page-header">
+        <h1>Frequently Asked Questions</h1>
+    </div>
+
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. Why was the Pulotu database built? 
+    </div>
+    <div class="answer">
+        A. Pulotu is a free resource available to the general public and was built to test evolutionary hypotheses of supernatural beliefs and practices using computational phylogenetic methods. More information on how the project was funded, and who was involved, is available on the <a href="{% url "about" %}" target="_blank">About</a> page. 
+    </div>
+</div>
+
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. Would you be interested in collaborating on a project?  
+    </div>
+    <div class="answer">
+A. Yes, please <a href="{% url "contact" %}" target="_blank">contact us</a> to discuss.     </div>
+</div>
+
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. What does a specific term mean? 
+    </div>
+    <div class="answer">
+A. Please check the definitions provided in the <a href="{% url "glossary" %}" target="_blank">Glossary</a>. If more information is required about how a specific variable was coded, please use the <a href="{% url "contact" %}" target="_blank">Contact Us</a> page for get additional clarification.
+</div>
+</div>
+
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. How do I open the dataset I have downloaded?
+    </div>
+    <div class="answer">
+        A. For maximum compatibility the dataset is provided as a tab-delimited txt file. This can be directly opened in a wide range of software, including Microsoft Excel, R and SPSS. 
+    </div>
+</div>
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. How can a new variable be added to the Pulotu database? 
+    </div>
+    <div class="answer">
+        A. We are happy to see Pulotu expand and grow, and want to ensure that Pulotu retains high quality data throughout this process. If you would like to add a specific variable to Pulotu that you have already coded, please <a href="{% url "contact" %}" target="_blank">contact us</a> directly. All variables need to be cross checked for accuracy before they can be included on Pulotu, and will be considered on a case-by-case basis. 
+        <p>In order for variables you have coded to be considered, they must meet the following criteria; (a) data must be available for a substantial proportion of the cultures in the Pulotu sample, (b) for each coding decision there needs to be a reference to one or more high quality source (including page numbers), and (c) all coding decision must include coder’s notes justifying the decision, and where possible supporting quotes for the sources cited. 
+        </p><p>Time permitting, in some cases we may be able to code and add new variables. This will be easier when we already have closely related variables coded.
+        </p><p>Please <a href="{% url "contact" %}" target="_blank">contact us</a> before coding a new variable and we will be happy to provide additional instructions and guides. All contributions will be publicly acknowledged on the Pulotu website. 
+        </p>
+    </div>
+    </div>
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. How can a new culture be added to the Pulotu database?
+    </div>
+    <div class="answer">
+       A. As with the addition of new variables, we are happy to see Pulotu expand and want to ensure that it remains a high-quality resource throughout this process. Please <a href="{% url "contact" %}" target="_blank">contact us</a> with the information about the culture you would like to add, proposals will be considered on a case-by-case basis. 
+        <p>Preference will be given to those cultures that are more distantly related to cultures already sampled, that are richly documented in ethnographic sources, and that speak a language from the tree created by <a href="http://doi.org/10.1126/science.1166858" target="_blank">Grey, Drummond & Greenhill’s (2009)</a>. 
+        </p><p>In order to be considered for inclusion in Pulotu a culture must (a) have been coded for a substantial number of existing variables, (b) for each coding decision there needs to be a reference to one or more high quality sources (including page numbers), and (c) all coding decision must include coder’s notes justifying the decision, and, where possible, supportingquotes for the sources cited.
+        </p><p>Please <a href="{% url "contact" %}" target="_blank">contact us</a> before coding a culture and we will provide additional instructions and guides. All contributions will be publicly acknowledged on the Pulotu website. 
+        </p>
+    </div>
+</div>
+    
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. I would like to suggest a correction, how do I do this? 
+    </div>
+    <div class="answer">
+     A. We strive to make Pulotu as accurate as possible and appreciate corrections. Please <a href="{% url "contact" %}" target="_blank">contact us</a> and (a) state the question(s) the correction applies to, (b) state the culture(s) the correction applies to, and (c) provide a credible source that supports the correction. Please make sure that the source applies specifically to the time period relevant to that variable. 
+    </div>
+</div>
+
+<div id="faq">
+    <div class="faqquestion">
+        <a href="" style="font-weight:bold;padding-right:15px;">+</a> Q. How do I cite Pulotu? 
+    </div>
+    <div class="answer">
+        A. Please cite the following article:
+        <p><a  href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0136783" target="_blank">Watts J., Sheehan O., Greenhill S.J., Gomes-Ng S., Atkinson Q.D., Bulbulia J., Gray R.D. (2015). Pulotu: Database of Austronesian Supernatural Beliefs and Practices. PLoS ONE 10(9).</a></p>
+    </div>
+</div>
+    
+{% endblock %}

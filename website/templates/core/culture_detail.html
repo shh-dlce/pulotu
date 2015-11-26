@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load website_tags %}
+{% load staticfiles %}
+
+{% block extra_keywords %} {{culture}} {% endblock %}
+
+
+{% block title %} {{ culture }} {% endblock %}
+
+
+{% block content %}
+<script type="text/javascript">
+	var map, vectors;
+        function init(){
+        map = new OpenLayers.Map();
+
+		var mapnik         = new OpenLayers.Layer.OSM();
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+
+        var position       = new OpenLayers.LonLat({{longitude}}, {{latitude}}).transform( fromProjection, toProjection);
+        var zoom           = 3; 
+ 
+        map.addLayer(mapnik);
+        map.setCenter(position, zoom);
+	
+		var styleMap = new OpenLayers.StyleMap({pointRadius: 10,
+                         externalGraphic: '{% static "img/marker.png" %}'});
+		vectors = new OpenLayers.Layer.Vector("Vector Layer", {styleMap: styleMap});
+		//map.addLayer(vectors);
+		
+		map.addLayer(vectors);
+		
+		var marker = new OpenLayers.Feature.Vector(
+			new OpenLayers.Geometry.Point(position.lon, position.lat));
+		vectors.addFeatures([marker]);
+		//markers.addMarker(new OpenLayers.Marker(position));
+		
+		//position = new OpenLayers.LonLat( -0.1244324, 51.5006728).transform( fromProjection, toProjection);
+		//markers.addMarker(new OpenLayers.Marker(position));
+        }
+
+		
+    </script>
+ 
+  <body onload="init();">
+
+	<div class="page-header"><h1>{{ culture }}</h1></div>	
+    <p class="notes">
+      {% if culture.ethonyms %}
+      Also known as: {{culture.ethonyms}}<p>
+      {% endif %}
+
+       
+      {{ culture.notes}}
+		<p>
+
+	<a href="" class="map-link">Show Map of Location</a>
+	<div id = "locationHold">
+	<div id ="mapLocation"></div></div>
+	
+	{% for t in time %}
+	<div class="table-heading">{{t.category}}<em class="time">{% if t.time %}({{t.time}}){%endif%}</em><a href="" class="expandAll" id="{{t.category.category|hyphenate}}">Expand All +</a></div>
+	
+		{% for f in full|getkey:t.category %}
+			<div id = "{{t.category.category|hyphenate}}-all">
+			{% for key, value in f.items %}
+			<div id="table-title" class="table-title">{{key|nobrackets}}
+			<a href="" id="{{key|hyphenate}}" class="expand-button">+</a>
+			</div>
+			<div class="data-table" id="{{key|hyphenate}}-table">
+			{% for v in value %}
+				{% for k, m in v.items %}
+						{% if k != key %}
+							<table class="dataTable"><tr><td><p>{{k|nobrackets}}</p></td></tr></table>
+						{% endif %}
+					
+					{% for n in m %}
+					<table class="dataTable">
+						<tr>
+							<td class="quest">
+							{% if n.question.simplified_question %}
+							{{n.question.simplified_question}}
+							{% else %}						
+							{{n.question}}{% endif %}
+							</td>
+							<td class = "response">
+							{% if n.response_text %} {{n.response_text|nobrackets}} {% else %} {{n.response}} {% endif %}
+							<small class="source-bracket">
+								(</small><a href="" class="source-link" id="{{n.question.question|hyphenate}}-sourcelink">Source</a><small href="" class="source-bracket">)</small></td>
+							</td>
+	
+						</tr>
+						<tr class="sourceRow" id = "{{n.question.question|hyphenate}}-source">
+						<td class="sourcein" colspan="2"><a href="#{{n.source1.slug}}"> {{n.source1}}</a>{% if n.page1%}, pp. {{n.page1}}{%endif%}{% if n.source2 %}<br><a href="#{{n.source2.slug}}"> {{n.source2}}</a>{%if n.page2%}, pp. {{n.page2}}{% endif %}{% endif %}{% if n.source3 %}<br><a href="#{{n.source3.slug}}"> {{n.source3}}</a>{%if n.page3 %}, pp. {{n.page3}}{%endif%}{%endif%}{%if n.source4%}<br><a href="#{{n.source4.slug}}"> {{n.source4}}</a>{%if n.page4%}, pp. {{n.page4}}{%endif%}{%endif%}{%if n.source5%}<br><a href="#{{n.source5.slug}}"> {{n.source5}}</a>{%if n.page5%}, pp. {{n.page5}}{%endif%}{%endif%}</td>
+						</tr>
+						</table>
+					{% endfor %}
+					
+				{% endfor %}
+			{%endfor %}
+				</div>
+				<div class="divider"></div>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	
+	{% endfor %}
+<div class="table-heading">External Links</div>
+	<div class="externallinks">
+	<ul class="external-links">
+
+	{% for l in langs|ethnologueunique%}
+	{% if l.isocode %}
+	<li>
+	  <a href="{{l|ethnologue}}" target="_blank">Ethnologue ({{l.isocode}})</a>
+	</li>
+	{% endif %}
+	{% endfor %}
+
+	{% for l in langs %}
+	<li>
+	{% if l.abvdcode %}
+	   <a href="{{l|link_abvd}}" target="_blank"> Austronesian Basic Vocabulary Database ({{l.abvdcode}})</a></li>
+	{% endif %}
+	{% endfor %}
+	</ul>
+	</div>
+	
+	<div class="table-heading">References</div>
+	<div class="references">
+	
+	{% for ref in source_list %}
+	<div id="{{ref.slug}}">{{ref.reference}}</div><p>
+	{%endfor%}
+	</div>
+	</body>
+{% endblock %}
+

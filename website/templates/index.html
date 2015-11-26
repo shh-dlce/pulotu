@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% load cache %}
+{% block title %} {{ SITE_NAME }} {% endblock %}
+
+{% block content %}
+{% cache 9600 homePage %}
+
+<div class="indexContent">
+	<img class = "front" src="{% static "img/HeadLarge.jpg" %}" height="50%" />
+	<div id="description">
+		<p class="page-header">
+			{{ SITE_NAME }}
+		</p>
+		<p class="subtitle">Database of Pacific Religions</p>
+        <p class="lead">
+           {{ SITE_NAME }}, meaning abode of the gods, is a database of Austronesian
+		   religious beliefs and practices.  You will find information on {{cultures}} cultures from the Moken
+		   of mainland Asia to the Maori of New Zealand.
+	
+</div>
+{% endcache %}
+{% endblock %}
+

@@ -1,0 +1,51 @@
+
+    <!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+        <head>
+            <title>Change Section</title>
+            <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+            <meta name="description" content="Link categorization control." />
+            <style type="text/css">
+                h1 {
+                    text-align: center;
+					font-family:Verdana
+                }
+                body {
+                    margin: 10%;
+                    border: solid .2em black;
+					font-family:Verdana;
+					font-size:12px;
+                }
+                p, ul, h2, form {
+                    margin-left: 10%;
+                    margin-right: 10%;
+					font-family:Verdana;
+                }
+				
+				select {
+				}
+            </style>
+        </head>
+        <body>
+            <h1>Change Section</h1>
+            <p>
+            </p>
+            <form method="post" action="{{ path }}"> {% csrf_token %}
+                <table>
+                    {{ form }}
+                </table>
+
+                <p>
+                    <input type="hidden" name="action" value="changeCategory" />
+                    <input type="submit" name="cancel" value="Cancel" />
+                    <input type="submit" name="change" value="Change" />
+                </p>
+            </form>
+            <h2>This will affect the following questions:</h2>
+            <ul>
+                {% for link in links %}
+                    <li>{{link}}</li>
+                {% endfor %}
+            </ul>
+        </body>
+    </html>

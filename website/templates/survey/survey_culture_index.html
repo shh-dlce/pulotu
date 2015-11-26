@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+
+{% block title %} Culture Survey: {{ object }} {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Culture Surveys: {{ object }}</h1>
+    </div>
+    
+    <ul class="breadcrumb">
+      <li>
+          <a href="{% url "survey-index" %}">Back to Culture Index</a>
+      </li>
+    </ul>
+    
+		{% include "includes/codingguide.html" %}
+
+	<div class = "edit-sections">
+	<h2>Survey Sections:</h2>
+	
+    {% if table %}
+        {% render_table table "table.html" %}
+    {% else %}
+        <p class="error">No sections found!</p>
+    {% endif %}
+	</div>
+
+{% endblock %}

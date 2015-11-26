@@ -1,0 +1,312 @@
+{% load staticfiles %}
+
+<div id="aboutText">
+Pulotu, the proto-Polynesian word for the abode of the gods, is a database of supernatural beliefs and practices across Austronesian cultures. The database includes {{cultures}} Austronesian cultures and {{questions}} variables on religion, history, society, and the natural environment. This database is specifically designed to test evolutionary hypotheses of religious belief and practice, with a primary focus on the traditional state of cultures. A major advantage of Pulotu is that robust language phylogenies are available for Austronesian cultures. This enables the use of phylogenetic comparative methods which provide the ability to reconstruct the states of proto-cultures, account for common ancestry in cross cultural analysis, and test for correlated evolution between traits. 
+</div>
+
+<div id="table-title" class="table-title" style="margin-left:20px; margin-right:20px; width:95%">
+Database Content
+<a id="database-content" class="expand-button" href="">+</a>
+</div>
+<div class="data-table" id="database-content-table">
+<p>Cultures</p>
+Being expert voyagers, Austronesians settled as far west as Madagascar and as far east as Rapanui - an area spanning over half the world’s longitude. The physical environments they inhabited ranged from tiny atolls such as Tongareva to the isolated mountainous interiors of large islands such as Taiwan. The social and religious features of these cultures were no less diverse. Social structures ranged from acephalous nomadic bands to large, complex states. Supernatural beliefs systems included localised nature spirits and the spirits of recent ancestors, as well as structured pantheons of powerful gods. Supernatural practices include ritual dances, human sacrifice and headhunting. It was this diversity of religious belief and practice that inspired the first comparative studies of religion (Swain, & Trompf, 1995). 
+<p>Variables</p>
+Pulotu contains a total of {{questions}} variables of which {{relBelief}} concern religious belief, {{relPractice}} religious practice, {{social}} the social environment and {{physical}} the physical environment. This set of variables is divided into three major sections, each covering a distinct time period in a cultures history. The first and largest section is the traditional state section, which contains information on the state of the culture prior to large-scale modernisation. The second section covers the post-contact history, the time period spanning from the traditional state of the cultures to their contemporary state. The third section is the contemporary state, documenting the contemporary state of the culture. 
+<p>Further Information</p>
+Definitions of the terms used throughout Pulotu can be found in our <a href="{% url "glossary" %}">glossary section</a>. For all other enquiries please visit our <a href="{% url "contact" %}">contact page</a>.  
+</div>
+<div class="divider"></div>
+
+
+<div id="table-title" class="table-title" style="margin-left:20px; margin-right:20px; width:95%">
+The Team
+<a id="the-team" class="expand-button" href="">+</a>
+</div>
+<div id="the-team-table" class="data-table">
+
+<table class="teamPhotos">
+<tr style="border:none;">
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/RussellGray.jpg" %}"></td>
+<td class="person"> Prof. Russell Gray <br>
+<div class="personDescription">
+<em class="shortDesc">Project Leader, overall coordination.</em> 
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://www.psych.auckland.ac.nz/en/about/our-staff/academic-staff/russell-gray.html" target="blank">Website</a>
+<br><a href="mailto:rd.gray@auckland.ac.nz">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/SimonGreenhill.jpg" %}"></td>
+<td class="person"> Dr. Simon Greenhill <br>
+<div class="personDescription">
+<em class="shortDesc">Associate Investigator, database design</em>
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="https://researchers.anu.edu.au/researchers/greenhill-s " target="blank">Website</a>
+<br><a href="mailto:simon.greenhill@anu.edu.au">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/QuentinAtkinson.jpg" %}"></td>
+<td class="person"> Dr. Quentin Atkinson<br>
+<div class="personDescription">
+<em class="shortDesc">Associate Investigator, data analysis</em>
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://www.fos.auckland.ac.nz/~quentinatkinson/Quentin_Atkinsons_Website/Home.html  " target="blank">Website</a>
+<br><a href="mailto:q.atkinson@auckland.ac.nz">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/JosephBulbulia.jpg" %}"></td>
+<td class="person"> Dr. Joseph Bulbulia<br>
+<div class="personDescription">
+<em class="shortDesc">Associate Investigator, religious studies consultant</em>
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://www.josephbulbulia.com" target="blank">Website</a>
+<br><a href="mailto:joseph.bulbulia@vuw.ac.nz">Email</a>
+</td>
+
+</tr>
+
+
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/CarlosBotero.jpeg" %}"></td>
+<td class="person"> Prof. Carlos Botero<br>
+<div class="personDescription">
+<em class="shortDesc">Associate Investigator, ecological modeling
+</em>
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://cabotero.weebly.com/" target="blank">Website</a>
+<br><a href="mailto:carlos.botero.p@gmail.com">Email</a>
+</td>
+
+</tr>
+
+
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/JosephWatts.jpg" %}"></td>
+<td class="person"> Joseph Watts<br>
+<div class="personDescription">
+<em class="shortDesc">Project management, database and website design</em><br>
+Joseph is a PhD candidate who has been responsible for overseeing the construction and development of the Pulotu database. He has created the database variables, overseen the cultural research and designed the website appearance and functions. 
+
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://www.josephwatts.org" target="blank">Website</a>
+<br><a href="mailto:me@josephwatts.org">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/OliverSheehan.jpg" %}"></td>
+<td class="person">Oliver Sheehan<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research and project development</em><br>
+Oliver is a graduate researcher who has developed the variables and content of the database and has been responsible cultural research and reviewing the work of other researchers.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:olcsheehan@gmail.com">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/StefNg.jpg" %}"></td>
+<td class="person">Stephanie Gomes-Ng<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research, website and database development</em><br>
+Stef is a graduate researcher who has been responsible for constructing the website, developing the database structure as well as researching cultures. 
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:sng089@aucklanduni.ac.nz">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/Angie.jpg" %}"></td>
+<td class="person">Dr. Angeline Song<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Angeline is a postdoctoral cultural researcher who has especially enjoyed researching cultures with Malay origins as therein lies her own Peranakan (Malay-Chinese) ethnic roots.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:song.angeline@gmail.com">Email</a>
+</td>
+
+</tr>
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/JoanneOng.jpg" %}"></td>
+<td class="person">Joanne Ong<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Joanne is a postgraduate who has been part of the team responsible for researching cultural profiles.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:josyinn@gmail.com">Email</a>
+</td>
+
+</tr>
+
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/SamPassmore.jpg" %}"></td>
+<td class="person">Sam Passmore<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Sam is a post-graduate who has been part of the team responsible for researching cultural profiles.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="http://www.sampassmore.com/" target="blank">Website</a>
+<br>
+<a href="mailto:passmore.sam@gmail.com">Email</a>
+</td>
+
+</tr>
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/KirstyMaurits.jpg" %}"></td>
+<td class="person">Kirsty Maurits<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Kirsty is a graduate who has been part of the team responsible for researching cultural profiles.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:purringcat@gmail.com">Email</a>
+</td>
+
+</tr>
+
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/GoldieHamilton.jpg" %}"></td>
+<td class="person">Goldie Hamilton<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Goldie is a graduate who has helped to develop the warfare variables and been part of the team responsible for researching cultural profiles.
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:4goldie@gmail.com">Email</a>
+</td>
+
+</tr>
+
+
+<tr>
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/KelseyBuntain.jpg" %}"></td>
+<td class="person">Kelsey Buntain<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Kelsey is a graduate who has been part of the team responsible for researching cultural profiles. 
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="mailto:kbun706@aucklanduni.ac.nz">Email</a>
+</td>
+
+</tr>
+
+<tr class="last">
+<td style="width:10px;"> <img class="teamPhoto" src="{% static "img/TeamPhotos/AlexanderThomson.jpg" %}"></td>
+<td class="person">Alex Thomson<br>
+<div class="personDescription">
+<em class="shortDesc">Cultural research</em><br>
+Alex is a postgraduate researcher who piloted an early version of the database and helped to develop the variables on syncretism. 
+</div>
+</td>
+<td style="text-align:right; font-weight:normal;">
+<a href="https://ucla.academia.edu/AlexanderThomson">Website</a>
+<a href="mailto:alexander.thomson@ucla.edu">Email</a>
+</td>
+
+</tr>
+
+
+</table>
+
+</div>
+<div class="divider"></div>
+<div id = "table-title" class="table-title" style="margin-left:20px; margin-right:20px; width:95% ">
+Funding and Affiliations
+<a id="funding" class="expand-button" href="">+</a>
+</div>
+<div id="funding-table" class="data-table">
+<p>Funding</p>
+Pulotu was constructed thanks to funding from the John Templeton Foundation and the Marsden Grant of the Royal Society of New Zealand.
+
+<table class="fundLogos">
+<tr><td><a href="http://www.templeton.org" target="_blank"><img class="fundjtf" src="{% static "img/JTF.jpg" %}"></a></td>
+<td><a href="http://www.royalsociety.org.nz/programmes/funds/marsden/" target="_blank"><img class = "fundmar" src="{% static "img/MF.jpg" %}"></a>
+</td></tr>
+</table>
+
+<p>Affiliations</p>
+<table>
+<tr><td> <a href=" http://www.psych.auckland.ac.nz/en/about/our-research/research-groups/language-and-cultural-evolution-group.html" target="_blank"> <img class="uniLogo" src="{% static "img/AU.jpg" %}"></a>
+   </td><td> <a href="http://asiapacific.anu.edu.au" target="_blank"> <img class="uniLogo" src="{% static "img/ANU.png" %}" style="height:auto; width:300px;"></a>
+  </td></tr>
+  <tr><td> <a href="http://www.shh.mpg.de/en" target="_blank"><img style="height:140px;" class="uniLogo" src="{% static "img/MP.png" %}"></a>
+</td><td><a href="http://www.victoria.ac.nz/sacr" target="_blank">  <img class="uniLogo" src="{% static "img/VUW.png" %}" style="height:150px;" ></a>
+</td> </tr>
+</table>
+
+</div>
+<div class="divider"></div>
+<div id = "table-title" class="table-title" style="margin-left:20px; margin-right:20px; width:95%">
+Publications
+<a id="publications" class="expand-button" href="">+</a>
+</div>
+<div id="publications-table" class="data-table">
+{% if user.is_superuser %}
+<a id="addNew" href="{% url "AddPublication" %}">Add Publication</a>
+<p></p>
+{% endif %}
+
+<ul>{% for p in publications %}
+{% if p.link %}
+<li style="list-style:none; text-indent:-22px;"><a href="{{p.link}}">{{p}}</a>
+</li>
+{% else %}
+<li style="list-style:none;text-indent:-22px;">{{p}}</li>{% endif %}
+<p></p>
+{% endfor %}</ul>
+</div>
+
+<div class="divider"></div>
+<div id = "table-title" class="table-title" style="margin-left:20px; margin-right:20px; width:95%">
+How to cite
+<a id="cite" class="expand-button" href="">+</a>
+</div>
+<div id="cite-table" class="data-table">
+<p>Please read the <a href="{% url "conditionsofuse" %}">conditions of use</a> page before publishing any data from Pulotu. </p>
+<p>Pulotu can be cited as follows:</p>
+<a  href="http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0136783" target="_blank">Watts J., Sheehan O., Greenhill S.J., Gomes-Ng S., Atkinson Q.D., Bulbulia J., Gray R.D. (2015). Pulotu: Database of Austronesian Supernatural Beliefs and Practices. PLoS ONE 10(9).</a>
+</div>
+

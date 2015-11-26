@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load nvd3_tags %}
+
+
+{% block title %} {{ SITE_NAME }} Statistics {% endblock %}
+
+<head>
+    {% include_chart_jscss %}
+    {% for chart in charts %}
+        {% load_chart chart.type chart.data "linechart_container" True "%d %b %Y" %}
+    {% endfor %}
+
+</head>
+
+{% block content %}
+    <div class="page-header">
+        <h1>Statistics for {{ SITE_NAME }}</h1>
+    </div>
+    
+    
+    {% for chart in charts %}
+        <div class="span6">
+            <h2>{{ chart.data }}</h2>
+        
+            {% include_container "linechart_container" 200 600 %}
+        </div>
+    {% endfor %}
+    
+{% endblock %}

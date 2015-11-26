@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% load staticfiles %}
+{% load website_tags %}
+
+{% block head %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('textarea').autosize();	
+	
+	
+	});
+
+</script>
+
+{% endblock %}
+{% block content %}
+ 
+	<div class="page-header">
+        <h1>{{ culture }} - {{ section }}</h1>
+    </div>
+    <ul class="breadcrumb">
+      <li>
+          <a href="{% url "survey-index" %}">Back to Culture Index</a>
+          <span class="divider"> //</span>
+      </li>
+      <li>
+          <a href="{% url "survey-culture-index" culture.slug %}">Back to Survey Index</a>
+      </li>
+    </ul>
+    <p class="notify">Note: if you select missing data and also enter a response, the
+			response will be saved as missing data.
+			</p>
+	<p class="section-notes">{{section.notes}}</p>
+	<p class="notify">
+			Chrome / Safari Users: You need to enter all your sources for this survey section prior to filling out this page.
+			Click "Edit Sources" in the admin menu to add new sources.  Please do not click "Add New Source" on this page - you
+			will lose the data you have already entered.
+			
+			</p>
+	{% if status %}
+	  <div class="alert">
+	     <strong>Success!</strong> 
+		 <ul>
+		   {% for s in status %}
+			 <li>{{ s }}</li>
+		   {% endfor %}
+		   <li class="notDone"><b>There are still questions to answer in this section.</b></li>
+	    </ul>	
+	  </div>
+	{% endif %}
+    <form action="{% url "survey-section-edit" culture.slug section.slug %}" method="post" class="form-horizontal">
+        {% csrf_token %}
+		{% for form in forms %}
+			<div class="question">
+				<p class="span12">{{section.id}}.{{ form.qnumber }}: {{ form.qtext }} </p>
+				{% if form.qinformation %}
+					<p class="text-muted span12"> {{ form.qinformation }}</p>
+				{% endif %}
+                {% if form.non_field_errors %}
+				<div class = "validation-err">{{form.non_field_errors}}</div>
+			{% endif%}
+			    <div class="control-group{% if form.response.errors %} error{% endif %}">
+			      <label class="control-label" for="{{ form.response.id_for_label }}">{{ form.response.label_tag }}</label>
+			      {% if form.response.errors %}
+					  {% endif %}
+				  
+				  <div class="missing-data">{{ form.missing }} Missing Data</div>
+
+				  
+				  <div class="controls">
+					  {{ form.response }} 
+			      </div>
+			    </div>
+				<div class="control-label"><label>Sources (Only add page number(s) for books):</label><p></div>
+				<div class="source-forms">
+
+				<a href="{% url "source-add" %}" 
+  					  	 target="_blank" onclick="window.open({% url 'source-add' %}, 'newwindow', 'width=300, height=250'); return false;"> 
+					     Add New Source (for Firefox users)
+  				</a>		  
+				<div class="source1">
+				{{form.source1}} Page Number(s): {{form.page1}}
+				{%if form.source1.errors %}
+				
+				{% endif %}</div>
+			
+				{{form.source2}} Page Number(s): {{form.page2}}<br>
+				{{form.source3}} Page Number(s): {{form.page3}}<br>
+				{{form.source4}} Page Number(s): {{form.page4}}<br>
+				{{form.source5}} Page Number(s): {{form.page5}}
+				
+				
+				</div>
+                
+			    <div class="control-group{% if form.codersnotes.errors %} error{% endif %}">
+			      <label class="control-label" for="{{ form.codersnotes.id_for_label }}">{{ form.codersnotes.label_tag }}</label>
+			      <div class="controls">
+					  {{ form.codersnotes }} 
+					  {% if form.codersnotes.errors %}
+						<i class="tip icon-exclamation-sign" 
+						    data-toggle="tooltip" 
+						    data-placement="top" 
+						    data-container="td"
+						    title="
+						    {% for error in form.codersnotes.errors %}
+						        {{ error|escape }} 
+						    {% endfor %}">
+						</i>
+					  {% endif %}
+			      </div>
+			    </div>
+					<div class = "checkbox-controls">
+						<div class="control-label">{{form.uncertainty.label_tag}}{{ form.uncertainty }}</div>
+					</div>
+				
+				{% for hidden in form.hidden_fields %}
+				    {{ hidden }}
+				{% endfor %}
+			</div>
+			</hr />
+		{% endfor %}
+        <span class="span6">
+			<button type="submit" class="submit-form"><i class="icon-ok"></i> Save Section </button>
+		</span>
+    </form>
+{% endblock %}
+
+
+{% block end %}
+    
+{% endblock %}

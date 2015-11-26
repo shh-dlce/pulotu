@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block content %}
+<div class="page-header">
+        <h1>Backend</h1>
+    </div>
+
+    <p>{{ SITE_NAME }} has used the wonderful open-source
+    web-development ecosystem. Key technologies that have enabled this website
+    are:
+    </p>
+    
+    <table class="backendTable">
+        <tr class="backendRowUp">
+            <td class="backendTD">
+                <a href="http://www.unicode.org/">
+                    <img src="{% static "img/Unicode.jpg" %}" width="120px" alt="Unicode&reg;." title="Unicode&reg;." />
+                </a>
+            </td>
+            <td class="backendDesc">All data are encoded according to the Unicode&reg; Standard.
+            </td>
+        </tr>
+        <tr class="backendRow">
+            <td class="backendTD">
+                <a href="http://www.djangoproject.com/">
+                    <img src="{% static "img/django.jpg" %}" width="130px" alt="Powered by Django." title="Powered by Django." />
+                </a>
+            </td>
+            <td class="backendDesc">Django is a high-level Python Web framework that encourages rapid
+                development and clean, pragmatic design.
+            </td>
+        </tr>
+        
+      
+        <tr class="backendRow">
+            <td class="backendTD">
+                <a href="http://jquery.com/">
+                    <img src="{% static "img/jQuery.jpg" %}" width="150px" alt="jQuery." title="jQuery." />
+                </a>
+            </td>
+            <td class="backendDesc">The jQuery Javascript library.</td>
+        </tr>
+        <tr class="backendRow">
+            <td class="backendTD">
+                <a href="http://www.postgresql.org/">
+                    <img src="{% static "img/PostgreSQL.jpg" %}" width="150px" alt="PostgreSQL." title="PostgreSQL." />
+                </a>
+            </td>
+            <td class="backendDesc">The PostgreSQL open-source relational database engine.</td>
+        </tr>
+        <tr class="backendRow">
+            <td class="backendTD">
+                <a href="http://www.sqlite.org/">
+                    <img src="{% static "img/SQLite.jpg" %}" width="150px" alt="SQLite." title="SQLite." />
+                </a>
+            </td>
+            <td class="backendDesc">The SQLite open-source relational database engine.</td>
+        </tr>
+    </table>
+{% endblock %}

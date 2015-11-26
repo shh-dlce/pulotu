@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load website_tags %}
+{% load render_table from django_tables2 %}
+
+{% block extra_keywords %} {{object}} {% endblock %}
+
+{% block title %} {{ object }} {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Language: {{ object }}</h1>
+    </div>
+    
+    <ul class="breadcrumb">
+      <li>
+          <a href="{% url "index" %}">Home</a> 
+          <span class="divider">/</span>
+      </li>
+      <li>
+          <a href="{% url "language-index" %}">Languages</a>
+          <span class="divider">/</span>
+      </li>
+      <li>
+          <a href="{% url "language-detail" object.isocode %}">{{ object }}</a>
+      </li>
+    </ul>
+    
+    <h2>Information:</h2>
+    
+    <p><strong>ISO 639: </strong>{{ object.isocode }}</p>
+    
+    <p class="notes"> 
+        <strong>Classification: </strong> 
+        {{ object.classification }}
+    </p>
+    
+    <h2> Resources: </h2>
+    
+    <ul>
+        {% if object.isocode %}
+            <li><a href="{{ object|link_ethnologue }}">Ethnologue page for {{ object.language }}</a></li>
+            <li><a href="{{ object|link_olac }}">Open Language Archives search for {{ object.language }}</a></li>
+            <li><a href="{{ object|link_llmap }}">Linguist-List Map Project for {{ object.language }}</a></li>
+            <li><a href="{{ object|link_multitree }}">Multitree language relationships for {{ object.language }}</a></li>
+            <li><a href="{{ object|link_glottolog }}">Glottolog resources for {{ object.language }}</a></li>
+        {% endif %}
+    </ul>
+
+    {% if object.isocode %}
+        <h2> Map: </h2>
+        
+        {{ object|language_map }}
+        
+    {% endif %}
+
+{% endblock %}

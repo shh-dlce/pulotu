@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load render_table from django_tables2 %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load website_tags %}
+{% load staticfiles %}
+
+{% block title %} Compare Cultures {% endblock %}
+
+   
+{% block content %}
+<script type="text/javascript">
+
+		var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+		var map, vectors, markers;
+        function init(){
+		//var coordinates = getCultures();		
+        map = new OpenLayers.Map( 'map');
+		var mapnik         = new OpenLayers.Layer.OSM();
+        var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+        var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+
+        var position       = new OpenLayers.LonLat(179.860048, -6.880166).transform( fromProjection, toProjection);
+        var zoom           = 2; 
+ 
+        map.addLayer(mapnik);
+        map.setCenter(position, zoom);
+
+		vectors = new OpenLayers.Layer.Vector("Vector Layer", {renderers: ['Canvas', 'VML', 'SVG'],});
+		vectors.events.register("featureselected", vectors, linkHandler);
+		map.addLayer(vectors);
+		var fpControl = new OpenLayers.Control.FeaturePopups({
+			boxSelectionOptions: {},
+			layers: [
+				[
+				vectors, {templates: {
+					hover: '${.culture}'
+				}}]
+			]
+		});
+		
+		var selectCtrl = new OpenLayers.Control.SelectFeature(vectors, {clickout: true});
+		map.addControl(selectCtrl);
+		map.addControl(fpControl);
+		
+		selectCtrl.activate();
+        }    
+		
+		function linkHandler(e) { //if they click on a marker, take them to the culture detail page
+			var first = location.host;	
+			window.location = 'http://'+first+'/culture/'+e.feature.attributes.slug;			
+		}
+  
+    </script>
+ 
+  <body onload="init();">
+  
+  <div class="page-header">
+        <h1>Compare Cultures</h1>
+		
+    </div>
+    <div class="mapholder">
+	<div class="creds">
+	<div class= "logo-title">{{SITE_NAME}}.com</div>
+	
+	</div>
+	<div id="map"></div></div>
+	
+	<div class = "add">
+	</div>
+	<div id="variables" style="margin-top:50px;">
+	<h2>Select Variable</h2>
+	<div class = "section">
+	{% for key, value in full.items %}
+	
+	<p class ="sec-title"><a href="" class="expand-list" id = "{{key|hyphenate}}">- {{key|nobrackets}}</a></p>
+		{% for x in value %}
+		<div class="listy" id = "{{key|hyphenate}}-list">
+			{% for k, v in x.items %}
+			
+			<p class = "subsec-title" ><a href="" class="expand-list" id="{{k|hyphenate}}">+ {{k|nobrackets}}</a></p>
+				{% for m in v %}
+					<DIV class = "toHide" id = "{{k|hyphenate}}-list">
+					{% for s, n in m.items %}
+						{% if s != k %}<p class = "subsubsec"><a href="" class="expand-list" id="{{s|hyphenate}}">- {{s|nobrackets}}</a></p>{%endif%}
+						<ul class = "listOfQs" id="{{s|hyphenate}}-list">
+						{% for o in n %}
+						<li class=""><a href="" class="qLink">{%if o.simplified_question%}{{o.simplified_question}}{%else%}{{o.question}}{%endif%}</a></li>
+						{% endfor %}
+						</ul>
+					{% endfor %}
+					</div>
+				{% endfor %}
+					
+			{% endfor %}
+	</div>
+		{% endfor %}
+	{% endfor %}
+	
+	
+	</div>
+	</div>
+	</body>
+{% endblock %}

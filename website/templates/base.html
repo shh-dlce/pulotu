@@ -1,0 +1,125 @@
+{% load staticfiles %}
+{% load website_tags %}
+{% load compress %}
+
+<html lang="en">
+<!DOCTYPE html>
+  <head>
+  
+    
+  <meta charset="utf-8">
+  <title>{% block title %} {{ SITE_NAME }} {% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="keywords" content="{% spaceless %}{{ SITE_NAME }}{% block extra_keywords %}{% endblock %}{% endspaceless %}" /> 
+  <meta name="description" content="{{ SITE_DESCRIPTION }}" />
+  <meta name="author" content="{{ SITE_AUTHORS }}" />
+  
+  <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js"> </script>-->
+	<script src="{% static "js/jquery.js" %}"></script>
+	<script src="{% static "js/OpenLayers.js" %}"></script>
+	<script src="{% static "js/FeaturePopups.js" %}"></script>
+<script src="{% static "js/culture_detail.js" %}"></script>
+	<script src="{% static "js/compare_cultures.js" %}"> </script>
+	<script src="{% static "js/select2.js" %}"></script>
+	<script src="{% static "js/select2.min.js" %}"></script>
+	<script src="{% static "js/jquery.autosize.js" %}" />
+	<script src="{% static "js/jquery.autosize.min.js" %}" />
+<script type="text/javascript">
+
+</script>
+ {% compress css %}
+  <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-responsive.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/select2/all.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/select2/select2.css" %}" />
+<link rel="stylesheet" type="text/css" href="{% static "css/select2/select2.min.css" %}" />
+
+  {% endcompress %}
+  {% block head %}{% endblock %}
+</head>
+
+
+<body>
+<div id = "wrap">
+    <!-- nagivation menu --> 
+	  <div class="header-logo">
+		<img src="{% static "img/HeadLogo.jpg" %}" height="57" />
+		<div class="logo">
+		<div class="logo-title">{{SITE_NAME}}</div>
+		<div class="logo-text">Database of Pacific Religions</div>
+		</div>
+	</div>
+	<div class="admin-menu">
+	{% if user.is_staff %}  <b>User: {{ user }}</b><br>
+			  <ul>
+
+						<li><a href="{% url "admin:core_culture_changelist" %}">Edit Cultures</a>
+						</li>
+				
+				  <li{% active 'culture-add' %}>
+							  <a href="{% url "culture-add" %}">Add Culture</a>
+						  </li>
+						  <li{% active 'source-add' %}>
+							  <a href="{% url "admin:core_source_changelist" %}">Edit Sources</a>
+						  </li>
+						  <li{% active 'survey-index' %}>
+							  <a href="{% url "survey-index" %}">Culture Surveys</a>
+						  </li>
+						  <li {% active 'logout' %}>
+							<a href="{% url "admin:logout" %}">Logout</a>
+							</li>
+						
+				</ul>
+			
+			
+			  {% endif %}
+	</div>
+	
+	<div class="sidebar-nav">
+	  <ul>
+		  <li{% active 'index' %} id="homeLink">
+			  <a href="{% url "index" %}">Home</a>
+		  </li>
+		  <li{% active 'about' %} id="tight">
+			  <a href="{% url "about" %}">About</a>
+		  </li>
+		  
+		  <li{% active 'culture-index' %} id="tight">
+			  <a href="{% url "culture-index" %}">Cultures</a>
+		  </li>
+		<li{% active 'compare_cultures' %} id="tight" style="width:2%;"><a href="{% url "compare_cultures" %}">Compare Cultures</a></li>
+		<li{% active 'glossary' %} id="tight"><a href="{% url "glossary" %}">Glossary</a></li>
+		<li class="searching">
+		
+		<form action="{% url 'watson:search' %}">
+		<input type="search" value = "Search" value="{{request.GET.q}}" onFocus="value=''" name="q"></input></li>
+	</form>
+	  </ul>
+			  
+
+		  </div>
+	
+<div id="content">		 
+{% block content %} {% endblock %}
+</div>
+	<footer>
+		Supported by grants from the <a class="toFunding" href="http://www.templeton.org" target="blank">John Templeton Foundation</a>
+		and the <a class="toFunding" href="http://www.royalsociety.org.nz/programmes/funds/marsden/" target="blank">Marsden Fund</a><br>
+		
+		<a href="{% url "faq" %}">F. A. Q.</a> | <a href="{% url "contact" %}">Contact Us</a> | 
+		{% if user.is_staff %}
+			<a  href="{% url "admin:index" %}">Admin View</a>
+		{% elif user.is_authenticated %}<a href="{% url "admin:logout" %}">Log Out</a>{% else %}
+			
+<a href="{% url "django.contrib.auth.views.login" %}">Log In</a> {%endif%}
+		| <a href="{% url "backend" %}">Backend</a> | <a href="{% url "conditionsofuse" %}">Conditions of Use</a> | {%if user.is_superuser%}<a href="{% url "chooseexport" %}">Download Dataset</a>{%else%}<a href="{% url "dataset" %}">Download Dataset</a>{% endif%}
+
+	</footer>
+</div>
+</body>
+</html>

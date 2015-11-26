@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}
+Contact Us{% endblock %}
+{% block content %}
+        <div class="page-header">
+		<h1>Contact Us</h1></div>
+		<form method="post">
+	         {% csrf_token %} 
+			 <p class="info">
+			* denotes a required field</p>
+           {% if form.non_field_errors %}
+            <p class="error">
+		          {% for error in form.non_field_errors %}
+		            {{ error }}
+		          {% endfor %}
+            </p>
+           {% endif %}
+           <!-- Iterate over the fields in a form and render them  -->
+           <table class = "form-group">
+		   {% for field in form %}
+              <!-- Render the field label tag -->
+		        <tr>   <th> {{ field.label_tag }}
+				
+              <!-- If the field is required, display a * next to the field label -->
+            {% if field.field.required %}
+              *
+              {% endif %} </th>
+              <!-- Render the input field -->
+				<td class="inputF">{{ field }}
+				
+				{% if field.errors %}
+		          {% for error in field.errors %}
+		           <p class="error">
+				   {{ error }}</p>
+		          {% endfor %}
+		        {% endif %}
+		        <!-- Iterate over the field's errors, if any and display
+                 them one by one in a error alert
+            -->
+		        
+            </td></tr>
+          {% endfor %}
+		  <td colspan="2"><input type="submit" class="btn-email" value="Send" /></td>
+		  </table>
+   	  </form>
+
+{% endblock %}

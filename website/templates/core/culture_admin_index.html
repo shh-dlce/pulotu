@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load website_tags %}
+{% load staticfiles %}
+
+{% block extra_keywords %} {{culture}} {% endblock %}
+
+{% block title %} {{ culture }} {% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+        <h1>Culture Index</h1>
+    </div>
+<div class="culture-instructions">
+Click on a culture to edit it.  Click on 'Culture Survey' to enter responses for that culture.<p>
+<a href="{%url "culture-add" %}">Add New Culture</a>
+</div>
+<ul class="culture-admin-list">
+{%for culture in cultures%}
+<li>
+<li><b><a href = "{% url "culture-edit"  culture.slug %}">
+{{culture}}</a></b>  (<a href="{% url "survey-culture-index" culture.slug %}">Culture Survey</a>)</li>
+{%endfor%}
+</ul>
+
+{% endblock %}

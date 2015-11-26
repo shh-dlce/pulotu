@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block title %} Culture Survey Questions: {% endblock %}
+{% block content %}
+    <div class="page-header">
+        <h1>Culture Survey Questions </h1>
+    </div>
+    
+    <ul class="breadcrumb">
+      <li>
+          <a href="{% url "index" %}">Home</a> 
+          <span class="divider">/</span>
+      </li>
+      <li>
+          <a href="{% url "question-index" %}">Questions</a>
+      </li>
+    </ul>
+	 {% if table %}
+        {% render_table table "table.html" %}
+    {% else %}
+        <p class="error">No results found!</p>
+    {% endif %}
+
+{% endblock %}

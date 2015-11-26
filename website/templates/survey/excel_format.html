@@ -1,0 +1,168 @@
+{% load staticfiles %}
+{% load website_tags %}
+<head>
+  <script src="{% static "js/jquery.js" %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+    $('#selectall').click(function(event) {
+    if(this.checked) {
+    $('form input:checkbox').each(function() {
+    if ($(this).attr('id') == 'selectAllPublic') {
+    this.checked = false;
+    } else {
+    this.checked = true;
+    }
+    });
+    }else {
+    $('form input:checkbox').each(function() {
+    this.checked = false;
+    });
+    }
+    });
+
+    $('#selectAllPublic').click(function(event) {
+    if(this.checked){
+    $('form input:checkbox').each(function() {
+    if ($(this).hasClass('True') || ($(this).attr('id')=='selectall')){
+    this.checked=false;
+    } else {
+    this.checked = true;
+    }
+    });
+    } else {
+    $('form input:checkbox').each(function() {
+    this.checked = false;
+    });
+    }
+    });
+
+
+    $('.sectionSelect').click(function(event) {
+    if (this.checked) {
+    toSelect = $(this).attr('id')
+    $("."+toSelect).attr("checked", "true");
+
+//    $("#text_info").val($("#text_info").val()+toSelect+',');
+    } else {
+    toSelect = $(this).attr('id');
+    //$("."+toSelect).attr("checked", "false");
+//    alert("unchecked");
+    $("."+toSelect).removeAttr("checked");
+    }
+    });
+
+    
+    
+    
+$("#downloadfile").bind("click", function() {
+    $("#text_info").val("");
+if ($("#downloaddataset input:checkbox:checked").length >0)
+{
+    if (!$('#selectall').prop('checked') && !$('#selectAllPublic').prop('checked')){
+  
+    $('.sectionSelect').each(function(index) {
+    if (this.checked) {
+//    alert($(this).attr('id'))
+    $("#text_info").val($('#text_info').val()+$(this).attr('id')+',');
+    
+    }
+    });
+  }  else if ($('#selectAllPublic').prop('checked')) {
+//    alert("All Public");
+    $("#text_info").val("public");
+}
+
+}else {
+    alert("Please select the questions you wish to include in the dataset download.")
+    return false;
+}
+});
+    });
+    </script>
+
+  <style>
+    li {
+    list-style-type:none;
+    padding: 2px;
+    margin-left:40px;
+    }
+    body {
+    font-family: Verdana;
+    font-size: 12px;
+    margin-bottom:50px;
+    width:1000px;
+    }
+
+    p {
+    font-weight:bold;
+    margin-left:20px;
+    }
+
+    button, #downloadfile {
+    padding:5px;
+    margin-left:25px;
+    margin-top:20px;
+    font-family:Verdana;
+    }
+    
+    #refdown {
+    font-family:Verdana;
+    margin-left:20px;
+    }
+
+    .listOfQs{
+    margin-left:60px;
+    }
+    </style>
+  </head>
+<body>
+
+  <a href="{% url "index" %}">Home</a>
+
+  <h1>Download Dataset </h1>
+
+  <form action="{% url "download_references" %}">
+    <input type="submit" value="Download References" id = "refdown">
+  </form>
+  <p> Select the questions you wish to include in the dataset download.  Please note that the download may take some time due to the size of the database.</p>
+
+<!-- <form method = "post">
+    {% csrf_token %}
+    {{form.management_form}}
+    {{form.id.as_hidden}}
+
+    <li style="list-style-type: none;"> <input type="checkbox" id = "selectall" /> Select All Questions</li>
+
+
+    {{exportform.as_p}}
+
+    <button type="submit">Download Dataset</button>
+
+    </form>
+-->
+<form id = "downloaddataset" name="questions" method = "post">
+{% csrf_token %}
+<!--<input name="say" value="Hi">
+<label>
+<input type="checkbox" value="500" name="questions" />
+Testing</label>-->
+<li><input type="checkbox" id="selectall" /> Select All Questions</li>
+<li><input type="checkbox" id="selectAllPublic" /> Select All Public Questions</li>
+{% for key, value in questions.items %}
+<p>{{key}}</p>
+{% for v in value %}
+<li><input type="checkbox" class="sectionSelect" id="{{key.id}}" />
+Select All {{key}}</label></li>
+{% for k in v %}
+<li class="listOfQs"><label>
+<input name="questions" type="checkbox" value="{{k.id}}" class="{{key.id}} {% if k.displayPublic %}{{k.displayPublic}}{% endif%}"></input>
+{{k}}</label></li>
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+<input id="text_info" type="hidden" name="exportinfo" />
+<input id="downloadfile"  type="submit" value="Download Dataset">
+</form>
+
+  </body>

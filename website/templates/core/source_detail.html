@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load website_tags %}
+{% load render_table from django_tables2 %}
+
+{% block extra_keywords %} {{object}} {% endblock %}
+
+{% block title %} {{ object }} {% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>Source: {{ object }}</h1>
+    </div>
+    
+    <ul class="breadcrumb">
+      <li>
+          <a href="{% url "index" %}">Home</a> 
+          <span class="divider">/</span>
+      </li>
+      <li>
+          <a href="{% url "source-index" %}">Sources</a>
+          <span class="divider">/</span>
+      </li>
+      <li>
+          <a href="{% url "source-detail" object.slug %}">{{ object }}</a>
+      </li>
+    </ul>
+    
+    
+    <p class="reference">
+        {{ object.reference }}
+    <p>
+    
+    <h2> Provided Data: </h2>
+    
+    {% if table %}
+        {% render_table table "table.html" %}
+    {% else %}
+        <p class="error">No results found!</p>
+    {% endif %}
+
+{% endblock %}
