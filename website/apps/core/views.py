@@ -379,7 +379,7 @@ def CultureEdit(request, slug=None):
 		c = None
 		form = CultureForm(request.POST or None)
 	else:
-		c = Culture.objects.get(slug=slug)
+		c = get_object_or_404(Culture.objects, slug=slug)
 		form = CultureForm(request.POST or None, instance=c)
                 
 	if form.is_valid():

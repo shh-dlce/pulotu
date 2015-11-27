@@ -60,8 +60,12 @@ class SurveyIndex(TemplateView):
 def indexx(request, slug):		
 	sections = []	
 	fullDict = defaultdict(list)
-	culture = Culture.objects.all().filter(slug=slug)[0]
-		# get saved responses..
+	culture = Culture.objects.all().filter(slug=slug)
+	if culture:
+		culture = culture[0]
+	else:
+		raise Http404('culture does not exist')
+	# get saved responses..
 	responses = {}
 	question = {}
 	missing = {}
