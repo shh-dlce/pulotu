@@ -20,6 +20,7 @@ from website.apps.core.models import Source, Culture, Language
 #
 # Ugly, but it works.
 
+
 class DataTable(tables.Table):
     """Parent class for Datatables"""
     class Meta:
@@ -34,14 +35,11 @@ class DataTable(tables.Table):
 class SourceIndexTable(DataTable):
     """Source Listing"""
     author = tables.LinkColumn('source-detail', args=[A('slug')])
-    #year = tables.LinkColumn('source-detail', args=[A('slug')])
     reference = tables.LinkColumn('source-detail', args=[A('slug')])
     count = tables.LinkColumn('source-detail', args=[A('slug')])
     
     class Meta(DataTable.Meta):
         model = Source
-        #order_by = ('author', 'year') # default sorting
-        #sequence = ('author', 'year', 'reference', 'count')
         exclude = ('id', 'editor', 'added', 'slug', 'comment', 'bibtex')
     Meta.attrs['summary'] = 'Table of Sources'
     

@@ -1,6 +1,7 @@
 from django.contrib.sites.models import Site
 from django.conf import settings
 
+
 def InjectSettings(context):
     """Injects various settings into the context"""
     site = Site.objects.get_current()
