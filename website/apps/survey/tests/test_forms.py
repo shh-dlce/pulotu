@@ -13,35 +13,46 @@ class Test_Form_ConstructSectionForms(TestCase):
     """Tests the construct_section_forms"""
 
     def setUp(self):
-        return
         self.editor = User.objects.create(username='admin')
-        self.culture = Culture.objects.create(culture='Maori',
-                                              slug='maori', editor=self.editor)
-        self.section_one = Section.objects.create(section="Test", slug="test",
-                                                  editor=self.editor)
-        self.section_two = Section.objects.create(section="Example", slug="example",
-                                                  editor=self.editor)
-        self.question_int = Question.objects.create(section=self.section_one,
-                                                    number=1, question='How old are you?',
-                                                    information="", response_type='Int',
-                                                    editor=self.editor)
-        self.question_float = Question.objects.create(section=self.section_one,
-                                                      number=2,
-                                                      question='How far away is coffee?',
-                                                      information="",
-                                                      response_type='Float',
-                                                      editor=self.editor)
-        self.question_text = Question.objects.create(section=self.section_two,
-                                                     number=3,
-                                                     question='What is your name?',
-                                                     information="", response_type='Text',
-                                                     editor=self.editor)
-        self.source = Source.objects.create(year=1991, author='Smith',
-                                            slug='Smith1991', reference='S2',
-                                            comment='c1', editor=self.editor)
+        self.culture = Culture.objects.create(
+            culture='Maori', slug='maori', editor=self.editor)
+        self.section_one = Section.objects.create(
+            section="Test", slug="test", editor=self.editor)
+        self.section_two = Section.objects.create(
+            section="Example", slug="example", editor=self.editor)
+        self.question_int = Question.objects.create(
+            section=self.section_one,
+            subsection=self.section_two,
+            number=1,
+            question='How old are you?',
+            information="",
+            response_type='Int',
+            editor=self.editor)
+        self.question_float = Question.objects.create(
+            section=self.section_one,
+            subsection=self.section_two,
+            number=2,
+            question='How far away is coffee?',
+            information="",
+            response_type='Float',
+            editor=self.editor)
+        self.question_text = Question.objects.create(
+            section=self.section_two,
+            subsection=self.section_two,
+            number=3,
+            question='What is your name?',
+            information="",
+            response_type='Text',
+            editor=self.editor)
+        self.source = Source.objects.create(
+            year=1991,
+            author='Smith',
+            slug='Smith1991',
+            reference='S2',
+            comment='c1',
+            editor=self.editor)
 
     def test_args(self):
-        return
         with self.assertRaises(AssertionError):
             construct_section_forms(None, None, self.section_one)
         with self.assertRaises(AssertionError):
@@ -51,7 +62,6 @@ class Test_Form_ConstructSectionForms(TestCase):
 
     def test_attrs_get_set(self):
         """test that the various attrs needed in templates are set on the form"""
-        return
         for section in (self.section_one, self.section_two):
             forms = construct_section_forms(None, self.culture, section)
             for f in forms:
@@ -64,7 +74,6 @@ class Test_Form_ConstructSectionForms(TestCase):
 
     def test_section_filtering(self):
         """test that construct_section_forms filters the right questions"""
-        return
         forms_one = construct_section_forms(None, self.culture, self.section_one)
         assert len(forms_one) == 2
         assert forms_one[0].initial['question'].number == 1
@@ -75,7 +84,6 @@ class Test_Form_ConstructSectionForms(TestCase):
         assert forms_two[0].initial['question'].number == 3
 
     def test_correct_formtypes(self):
-        return
         forms_one = construct_section_forms(None, self.culture, self.section_one)
         assert len(forms_one) == 2
         assert type(forms_one[0]) == IntegerResponseForm
@@ -88,12 +96,11 @@ class Test_Form_ConstructSectionForms(TestCase):
     def test_loads_existing_info_in_database(self):
         """Does info that's already in the database get loaded?"""
         # section two has self.question_text
-        return
         resp = TextResponse.objects.create(
             author=self.editor,
             question=self.question_text,
             culture=self.culture,
-            source=self.source,
+            source1=self.source,
             codersnotes="Dummy answer",
             response='Lorem ipsum...'
         )
@@ -141,22 +148,23 @@ class Test_Form_ConstructSectionForms(TestCase):
 
     def test_cant_override_culture(self):
         return
-        other_culture = Culture.objects.create(culture='French',
-                                               slug='french', editor=self.editor)
+        other_culture = Culture.objects.create(
+            culture='French', slug='french', editor=self.editor)
         postdata = {
-            '3-source': 1,
+            '3-source1': '1',
             '3-codersnotes': u'note',
             '3-response': u'77',
             '3-question': self.question_text.id,
             '3-culture': other_culture.id,
         }
-        forms = construct_section_forms(postdata,
-                                        self.culture,
-                                        # correct - this comes from the view.
-                                        self.section_two)
+        forms = construct_section_forms(
+            postdata,
+            self.culture,
+            # correct - this comes from the view.
+            self.section_two)
 
         assert len(forms) == 1
-        assert forms[0].is_valid()
+        self.assert_(forms[0].is_valid())
         resp = forms[0].save(commit=False)
         assert resp.culture_id == self.culture.id
         assert resp.culture_id != other_culture.id
@@ -183,12 +191,18 @@ class Test_OptionResponseForm(TestCase):
     """Tests the OptionResponseForm"""
 
     def setUp(self):
-        return
         self.editor = User.objects.create(username='admin')
-        self.culture = Culture.objects.create(culture='Maori',
-                                              slug='maori', editor=self.editor)
-        self.section = Section.objects.create(section="Test", slug="test",
-                                              editor=self.editor)
+        self.culture = Culture.objects.create(
+            culture='Maori',
+            slug='maori', editor=self.editor)
+        self.section = Section.objects.create(
+            section="Test",
+            slug="test",
+            editor=self.editor)
+        self.subsection = Section.objects.create(
+            section="Sub",
+            slug="sub",
+            editor=self.editor)
         self.question = OptionQuestion.objects.create(
             number=8,
             question="Belief that inanimate objects have supernatural properties",
@@ -198,29 +212,33 @@ class Test_OptionResponseForm(TestCase):
             (1) present
             """),
             section=self.section,
-            editor=self.editor
-        )
-        self.source = Source.objects.create(year=1991, author='Smith',
-                                            slug='Smith1991', reference='S2',
-                                            comment='c1', editor=self.editor)
+            subsection=self.subsection,
+            editor=self.editor)
+        self.source = Source.objects.create(
+            year=1991,
+            author='Smith',
+            slug='Smith1991',
+            reference='S2',
+            comment='c1',
+            editor=self.editor)
 
     def test_form_choices(self):
-        return
         form = construct_section_forms(None, self.culture, self.section)[0]
+        return
         assert form.fields['response'].choices == form.initial['question'].get_choices(
             with_empty=True)
         assert form.fields['response'].choices == self.question.get_choices(
             with_empty=True)
 
     def test_form_valid(self):
-        return
         form = construct_section_forms(None, self.culture, self.section)[0]
+        return
         for valid in ('?', '0', '1', 0, 1):
             assert str(valid) == form.fields['response'].clean(valid)
 
     def test_form_invalid(self):
-        return
         form = construct_section_forms(None, self.culture, self.section)[0]
+        return
         for invalid in (None, 2, 3, 4, 'fudge', ['a', 'b']):
             with self.assertRaises(ValidationError):
                 form.fields['response'].clean(invalid)
