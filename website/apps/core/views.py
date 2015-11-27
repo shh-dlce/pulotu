@@ -35,6 +35,23 @@ class DefaultListOrderedDict(OrderedDict):
         return self[k]
 
 
+def sources(responses):
+    refs = set()
+    for r in responses:
+        if r.source1 is not None \
+                and str(r.source1) != 'Source not applicable (2014)':
+            refs.add(r.source1)
+        if r.source2 is not None:
+            refs.add(r.source2)
+        if r.source3 is not None:
+            refs.add(r.source3)
+        if r.source4 is not None:
+            refs.add(r.source4)
+        if r.source5 is not None:
+            refs.add(r.source5)
+    return sorted(refs, key=lambda source: source.reference, reverse=False)
+
+
 def latlon(cultures):
     lat, lon = None, None
     try:
@@ -261,19 +278,6 @@ def details(request, slug):
                             d['time'] = '?'
                 send.append(d)
 
-    source_list = set()  # get list of sources for references section
-    for r in queryset:
-        if r.source1 is not None and str(r.source1) != 'Source not applicable (2014)':
-            source_list.add(r.source1)
-        if r.source2 is not None:
-            source_list.add(r.source2)
-        if r.source3 is not None:
-            source_list.add(r.source3)
-        if r.source4 is not None:
-            source_list.add(r.source4)
-        if r.source5 is not None:
-            source_list.add(r.source5)
-
     latitude, longitude = latlon(queryset)
     res = render_to_response(
         'core/culture_detail.html',
@@ -283,7 +287,7 @@ def details(request, slug):
             'longitude': longitude,
             'latitude': latitude,
             'time': send,
-            'source_list': sorted(source_list, key=lambda s: s.reference, reverse=False),
+            'source_list': sources(queryset),
             'full': dict(fullDict)
         },
         context_instance=RequestContext(request))
