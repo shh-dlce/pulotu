@@ -1,6 +1,7 @@
 from django.contrib.sitemaps import Sitemap
 from website.apps.core.models import Culture, Language, Source
 
+
 class LanguageSitemap(Sitemap):
     changefreq = "never"
     priority = 0.1
@@ -34,11 +35,8 @@ class SourceSitemap(Sitemap):
         return obj.added
 
 
-
 sitemaps = {
-    #'languages': LanguageSitemap,
+    # 'languages': LanguageSitemap,
     'sources': SourceSitemap,
     'cultures': CultureSitemap,
 }
-
-

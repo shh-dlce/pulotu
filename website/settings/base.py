@@ -157,7 +157,7 @@ INSTALLED_APPS = [
     'djangosecure',                      # django-secure: Security helper
     'django_tables2',                    # django-tables2: tables helper
     'watson',                            # search
-    'compressor',                        # django-compressor for asset compression and versioning.
+    'compressor',                        # django-compressor for asset compression
     'django_nvd3',                       # for graphing statistics
     'captcha',
     'django_select2',
@@ -172,13 +172,14 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-            'verbose': {
-                'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-            },
-            'simple': {
-                'format': '%(levelname)s %(message)s'
-            },
+        'verbose': {
+            'format':
+                '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
         },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse',
@@ -186,17 +187,17 @@ LOGGING = {
     },
     'handlers': {
         'file_logging': {
-            'level' : 'DEBUG',
-            'class' : 'logging.handlers.RotatingFileHandler',
-            'backupCount' : 0,
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'backupCount': 0,
             'maxBytes': 5000000,
             'filename': 'django.log',
             'filters': ['require_debug_false'],
         },
         'db_logging': {
-            'level' : 'DEBUG',
-            'class' : 'logging.handlers.RotatingFileHandler',
-            'backupCount' : 0,
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'backupCount': 0,
             'maxBytes': 5000000,
             'filename': 'django-db.log',
             'filters': ['require_debug_false'],
@@ -213,19 +214,19 @@ LOGGING = {
     },
         
     'loggers': {
-        'django' : {
+        'django': {
             'handlers': ['file_logging'],
-            'level' : 'DEBUG',
-            'propagate' : False,
+            'level': 'DEBUG',
+            'propagate': False,
         },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': False,
         },
-        'django.db' : {
-            'handlers' : ['db_logging'],
-            'level' : 'DEBUG',
+        'django.db': {
+            'handlers': ['db_logging'],
+            'level': 'DEBUG',
             'propagate': False,
         },
         'django_select2': {
@@ -252,14 +253,14 @@ CONN_MAX_AGE = 64
 # THIRD-PARTY SETTINGS ==========================================
 
 # Django-Security settings
-SECURE_FRAME_DENY = True         # prevent framing of pages.
-SECURE_BROWSER_XSS_FILTER = True # enable XSS protection
-SESSION_COOKIE_SECURE = False    # can't login with True? 
-SESSION_COOKIE_HTTPONLY = False  # can't login with True?
+SECURE_FRAME_DENY = True          # prevent framing of pages.
+SECURE_BROWSER_XSS_FILTER = True  # enable XSS protection
+SESSION_COOKIE_SECURE = False     # can't login with True?
+SESSION_COOKIE_HTTPONLY = False   # can't login with True?
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # South
-SOUTH_TESTS_MIGRATE = False # just use syncdb
+SOUTH_TESTS_MIGRATE = False  # just use syncdb
 
 # Static Sitemaps
 STATICSITEMAPS_ROOT_SITEMAP = 'website.sitemap.sitemap'
