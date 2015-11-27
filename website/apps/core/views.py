@@ -151,8 +151,12 @@ def compareCultures(request):
         choices = quest.get_pub_choices()
         for r in Response.objects.all().filter(question=quest).exclude(missing=True):
             try:
-                latitude = Response.objects.all().filter(culture=r.culture).filter(question__simplified_question='Latitude')[0].response
-                longitude = Response.objects.all().filter(culture=r.culture).filter(question__simplified_question='Longitude')[0].response
+                latitude = Response.objects.all()\
+                    .filter(culture=r.culture)\
+                    .filter(question__simplified_question='Latitude')[0].response
+                longitude = Response.objects.all()\
+                    .filter(culture=r.culture)\
+                    .filter(question__simplified_question='Longitude')[0].response
             except:
                 latitude = None
                 longitude = None
@@ -183,11 +187,13 @@ def compareCultures(request):
                 {"lat": lat, "long": longi, "culture": c.culture, "slug": c.slug})
 
     categories = Category.objects.all().order_by('number')
-    questions = Question.objects.all().filter(response_type=Question.RESPONSETYPE_OPTION).order_by('section__number')
+    questions = Question.objects.all()\
+        .filter(response_type=Question.RESPONSETYPE_OPTION).order_by('section__number')
     fullDict = defaultdict(list)
     
     for c in categories:
-        subsections = Section.objects.all().filter(category=c).order_by('number').exclude(section__contains='Time Focus')
+        subsections = Section.objects.all()\
+            .filter(category=c).order_by('number').exclude(section__contains='Time Focus')
         subsectionDict = DefaultListOrderedDict()
         for section in subsections:
             filt = questions.filter(subsection=section)
@@ -204,23 +210,22 @@ def compareCultures(request):
             
     return render_to_response(
         'core/compare_cultures.html',
-        {'latlong':locations, 'full':dict(fullDict)},
+        {'latlong': locations, 'full': dict(fullDict)},
         context_instance=RequestContext(request))
 
     
 def details(request, slug):
     culture = get_object_or_404(Culture, slug=slug)
-    #get all responses for this culture
-    cacheName = 'full'+culture.culture
+    # get all responses for this culture
+    cacheName = 'full' + culture.culture
     if cache.get(cacheName) is not None:
         return cache.get(cacheName)
 
     queryset = Response.objects.all().filter(culture=culture)
 
-    #get languages
+    # get languages
     langs = culture.languages.all()
-    #get latitude and longitude (for map of location)
-    postCtime = ''
+    # get latitude and longitude (for map of location)
     categories = Category.objects.all().order_by('number')
     send = []
     
@@ -231,9 +236,11 @@ def details(request, slug):
         latitude = None
         longitude = None
     
-    timeF =  queryset.filter(question__section__section__contains='Time Focus').order_by('question__section__number')
+    timeF = queryset\
+        .filter(question__section__section__contains='Time Focus')\
+        .order_by('question__section__number')
     
-    source_list = set() #get list of sources for references section
+    source_list = set()  # get list of sources for references section
     for r in queryset:
         if r.source1 is not None and str(r.source1) != 'Source not applicable (2014)':
             source_list.add(r.source1)
@@ -245,15 +252,18 @@ def details(request, slug):
             source_list.add(r.source4)
         if r.source5 is not None:
             source_list.add(r.source5)
-    source_list = sorted(source_list, key=lambda source:source.reference, reverse=False)
+    source_list = sorted(source_list, key=lambda source: source.reference, reverse=False)
 
     fullDict = defaultdict(list)
     
     for c in categories:
-        subsections = Section.objects.all().filter(category=c).order_by('number').exclude(section__contains='Time Focus')
+        subsections = Section.objects.all()\
+            .filter(category=c).order_by('number').exclude(section__contains='Time Focus')
         subsectionDict = DefaultListOrderedDict()
         for section in subsections:
-            filt = queryset.filter(question__subsection=section).order_by('question__section__number', 'question__publicNumber')
+            filt = queryset\
+                .filter(question__subsection=section)\
+                .order_by('question__section__number', 'question__publicNumber')
             nary = DefaultListOrderedDict()
             for q in filt:
                 if not q.question.displayPublic and not q.missing:
@@ -270,44 +280,74 @@ def details(request, slug):
 
                 for t in timeF:
                     if c.number is t.question.subsection.number and not c.timeFocus:
-                        send.append({'category':c, 'time':t.response})
+                        send.append({'category': c, 'time': t.response})
                         added = True
                         break
 
                 if not added and not c.timeFocus:
                     num = c.number
                     try:
-                        before = timeF.filter(question__section__number=(num-1))[0].response
-                        after = timeF.filter(question__section__number=(num+1))[0].response
+                        before = timeF\
+                            .filter(question__section__number=(num - 1))[0].response
+                        after = timeF\
+                            .filter(question__section__number=(num + 1))[0].response
                         if before.find('-') is not -1 and after.find('-') is not -1:
                             send.append({
-                                'category':c,
-                                'time':before.partition('-')[2]+'-'+after.partition('-')[0]
+                                'category': c,
+                                'time': before.partition('-')[2] +
+                                '-' + after.partition('-')[0]
                             })
                         elif before.find('-') is not -1:
                             send.append({
-                                'category':c,
-                                'time':before.partition('-')[2]+'-'+after
+                                'category': c,
+                                'time': before.partition('-')[2] + '-' + after
                             })
                         elif after.find('-') is not -1:
                             send.append({
-                                'category':c,
-                                'time':before+'-'+after.partition('-')[0]
+                                'category': c,
+                                'time': before + '-' + after.partition('-')[0]
                             })
                         else:
-                            send.append({'category':c, 'time':before+'-'+after})
+                            send.append({'category': c, 'time': before + '-' + after})
                     except:
-                        send.append({'category':c, 'time':'?'})
+                        send.append({'category': c, 'time': '?'})
                 elif not added and c.timeFocus:
-                    send.append({'category':c})
+                    send.append({'category': c})
 
-        cache.set(cacheName, render_to_response('core/culture_detail.html', {'culture': culture, 'langs': langs, 'longitude':longitude, 'latitude':latitude, 'time':send, 'source_list':source_list, 'full':dict(fullDict)}, context_instance=RequestContext(request)), 9600)
-        
-    return render_to_response('core/culture_detail.html', 
-        {'culture': culture, 'langs': langs, 'longitude':longitude, 'latitude':latitude, 'time':send, 'source_list':source_list,
-        'full':dict(fullDict)},
-        
-            context_instance=RequestContext(request))
+        #
+        # FIXME: shouldn't the next block be outside of the loop?
+        #
+        cache.set(
+            cacheName,
+            render_to_response(
+                'core/culture_detail.html',
+                {
+                    'culture': culture,
+                    'langs': langs,
+                    'longitude': longitude,
+                    'latitude': latitude,
+                    'time': send,
+                    'source_list': source_list,
+                    'full': dict(fullDict)
+                },
+                context_instance=RequestContext(request)),
+            9600)
+
+    #
+    # FIXME: didn't we just compute this and put it in the cache?
+    #
+    return render_to_response(
+        'core/culture_detail.html',
+        {
+            'culture': culture,
+            'langs': langs,
+            'longitude': longitude,
+            'latitude': latitude,
+            'time': send,
+            'source_list': source_list,
+            'full': dict(fullDict)
+        },
+        context_instance=RequestContext(request))
 
 
 def getPublications(request):
@@ -315,12 +355,23 @@ def getPublications(request):
     cultures = Culture.objects.all().count()
     religiousBelief = questions.filter(subsection__section__contains='Belief').count()
     practice = questions.filter(subsection__section__contains='Practice').count()
-    socialEnv = questions.filter(subsection__section__contains='Social Environment').count()
+    socialEnv = questions.filter(
+        subsection__section__contains='Social Environment').count()
     physEnv = questions.filter(subsection__section='Physical Environment').count()
-    physEnv += questions.filter(subsection__section__contains='Physical Environment').count()
-    return render_to_response('about.html', {'cultures':cultures, 'relBelief':religiousBelief, 'relPractice':practice,
-        'publications':Publication.objects.all().order_by('reference'), 'social':socialEnv, 'physical':physEnv,
-        'questions':questions.count()}, context_instance=RequestContext(request))
+    physEnv += questions.filter(
+        subsection__section__contains='Physical Environment').count()
+    return render_to_response(
+        'about.html',
+        {
+            'cultures': cultures,
+            'relBelief': religiousBelief,
+            'relPractice': practice,
+            'publications': Publication.objects.all().order_by('reference'),
+            'social': socialEnv,
+            'physical': physEnv,
+            'questions': questions.count()
+        },
+        context_instance=RequestContext(request))
 
 
 @login_required()
@@ -355,7 +406,7 @@ def contact_form(request):
     else:
         form = ContactForm()
 
-    return render(request, "contact.html", { "form" : form })
+    return render(request, "contact.html", {"form": form})
 
 
 def request_form(request):
@@ -379,7 +430,7 @@ def request_form(request):
             #return redirect('conditionsofuse')
     else:
         form = RegistrationForm()
-    return render(request, "dataset.html", { "form" : form })
+    return render(request, "dataset.html", {"form": form})
 
 
 @login_required()
