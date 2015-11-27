@@ -53,9 +53,9 @@ class IntegerResponseForm(ResponseForm):
         response = cleaned_data.get("response")
         missing = cleaned_data.get("missing")
         source1 = cleaned_data.get("source1")
-        if response == 0 and source1:
-            return cleaned_data
-        elif response == 0 and not source1:
+        if response == 0:
+            if source1:
+                return cleaned_data
             raise forms.ValidationError("Source 1 is a required field.")
 
         if not missing and not response:  # if no response and not missing data
@@ -158,42 +158,16 @@ class OptionResponseForm(ResponseForm):
         return cleaned_data
 
 
-def get_response_type(response_type=None):
-    """Returns the correct Response model type for the given field type"""
-    # I could do this more elegantly by getattr and instantiating based on
-    # the stored value, but this way gives me top down control and a bit of
-    # safety
-    if response_type is None:
-        return Response
-    elif response_type == Question.RESPONSETYPE_INTEGER:
-        return IntegerResponse
-    elif response_type == Question.RESPONSETYPE_FLOAT:
-        return FloatResponse
-    elif response_type == Question.RESPONSETYPE_TEXT:
-        return TextResponse
-    elif response_type == Question.RESPONSETYPE_OPTION:
-        return OptionResponse
-    else:
-        raise ValueError("Unknown Response Type: {0}".format(response_type))
-
-
-def get_form_type(response_type=None):
-    """Returns the correct Response form type for the given field type"""
-    # I could do this more elegantly by getattr and instantiating based on
-    # the stored value, but this way gives me top down control and a bit of
-    # safety
-    if response_type is None:
-        return ResponseForm
-    elif response_type == Question.RESPONSETYPE_INTEGER:
-        return IntegerResponseForm
-    elif response_type == Question.RESPONSETYPE_FLOAT:
-        return FloatResponseForm
-    elif response_type == Question.RESPONSETYPE_TEXT:
-        return TextResponseForm
-    elif response_type == Question.RESPONSETYPE_OPTION:
-        return OptionResponseForm
-    else:
-        raise ValueError("Unknown Response Type: {0}".format(response_type))
+#
+# map response_type to form class
+#
+FORM_MAP = {
+    None: ResponseForm,
+    Question.RESPONSETYPE_INTEGER: IntegerResponseForm,
+    Question.RESPONSETYPE_FLOAT: FloatResponseForm,
+    Question.RESPONSETYPE_TEXT: TextResponseForm,
+    Question.RESPONSETYPE_OPTION: OptionResponseForm,
+}
 
 
 def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
@@ -214,7 +188,7 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     # loop over questions in this section and inject with existing
     # responses & post data
     for q in Question.objects.all().order_by('number').filter(section=section_obj):
-        formtype = get_form_type(q.response_type)
+        formtype = FORM_MAP[q.response_type]
         # manuipulate response to constrain cultures/questions
         resp = responses.get(q.id, None)
         s = source1.get(q.id, None)
