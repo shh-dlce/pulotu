@@ -6,18 +6,19 @@ from website.apps.statistics import statistic
 
 GRAPH_START_TIME = datetime.strptime("01 Apr 2013 00:00:00", "%d %b %Y %H:%M:%S")
 
+
 def format_time_struct(date):
-    return int(mktime(date)) * 1000 # I have no idea why * 1000 is needed
-    
-    
+    return int(mktime(date)) * 1000  # I have no idea why * 1000 is needed
+
+
 def get_xy(label, get_latest=False):
-    x = [format_time_struct(GRAPH_START_TIME.timetuple()),]
-    y = [0,]
-    
+    x = [format_time_struct(GRAPH_START_TIME.timetuple())]
+    y = [0]
+
     for row in StatisticalValue.objects.get_all_with_dates(label):
         x.append(format_time_struct(row[1].timetuple()))
         y.append(row[0])
-    
+
     # get_latest
     if get_latest:
         x.append(format_time_struct(datetime.now().timetuple()))
@@ -36,5 +37,5 @@ def statistics(request):
             'id': 'chart_id_%d' % i,
             'data': get_xy(label, get_latest=True)
         })
-    
+
     return render(request, 'statistics/details.html', out)

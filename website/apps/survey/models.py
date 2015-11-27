@@ -1,10 +1,8 @@
 import re
 from django.db import models
 from django.contrib.auth.models import User
-
 from polymorphic import PolymorphicModel, ShowFieldType
-
-from website.apps.core.models import TrackedModel, Category, Section, Culture, Source
+from website.apps.core.models import TrackedModel, Section, Culture, Source
 from website.apps.statistics import statistic
 
 OPTION_REGEX = re.compile(r"""^\s*?\((.*?)\)\s+(.*)$""", re.MULTILINE)
@@ -17,14 +15,14 @@ class Question(PolymorphicModel, TrackedModel):
     RESPONSETYPE_FLOAT = 'Float'
     RESPONSETYPE_TEXT = 'Text'
     RESPONSETYPE_OPTION = 'Option'
-    
+
     RESPONSETYPE_CHOICES = (
         (RESPONSETYPE_INTEGER, 'Integer'),
         (RESPONSETYPE_FLOAT, 'Float'),
         (RESPONSETYPE_TEXT, 'Text'),
         (RESPONSETYPE_OPTION, 'Options')
     )
-    
+
     subsection = models.ForeignKey(
         Section,
         related_name="Section",
@@ -58,7 +56,7 @@ class Question(PolymorphicModel, TrackedModel):
         choices=RESPONSETYPE_CHOICES,
         default=RESPONSETYPE_INTEGER,
         help_text="The expected response type")
-    
+
     # boolean variable to hide/show question from public
     displayPublic = models.BooleanField(
         "Hide this question from the public", default=False)
@@ -78,24 +76,24 @@ class OptionQuestion(Question):
     options = models.TextField(
         help_text="""\
 The possible options. MUST be in the following format, with ONE option per line:
-     
+
     (?) Missing data
-    (0) Low    
+    (0) Low
     (1) Moderate
-    (2) High 
+    (2) High
     """)
 
     def get_choices(self, with_empty=False):
         """
         Returns a list of valid choices for this instance
-        
+
         Parameter `with_empty` prepends an absence data code at the start of the list.
         """
         choices = []
         for f in OPTION_REGEX.findall(self.options):
             choices.append((f[0].strip(), f[1].strip()))
         return choices
-    
+
     def get_pub_choices(self, with_empty=False):
         choices = []
         for f in OPTION_REGEX.findall(self.options):
@@ -124,7 +122,7 @@ class Response(ShowFieldType, PolymorphicModel):
     source3 = models.ForeignKey(Source, blank=True, null=True, related_name="source3")
     source4 = models.ForeignKey(Source, blank=True, null=True, related_name="source4")
     source5 = models.ForeignKey(Source, blank=True, null=True, related_name="source5")
-    
+
     codersnotes = models.TextField(
         "Coder's Notes",
         blank=True,
@@ -132,14 +130,14 @@ class Response(ShowFieldType, PolymorphicModel):
         help_text="Notes from the Coder on these responses")
     uncertainty = models.BooleanField(default=False)
     missing = models.BooleanField("Missing data", default=False)
-    
+
     # to store page numbers. If you know a better way of doing this please change it
     page1 = models.CharField(max_length=256, blank=True, null=True)
     page2 = models.CharField(max_length=256, blank=True, null=True)
     page3 = models.CharField(max_length=256, blank=True, null=True)
     page4 = models.CharField(max_length=256, blank=True, null=True)
     page5 = models.CharField(max_length=256, blank=True, null=True)
-    
+
     def __unicode__(self):
         if not self.pk:
             return u"Response: "
@@ -149,7 +147,7 @@ class Response(ShowFieldType, PolymorphicModel):
         else:
             return u"Response: {0}-{1}-{2}: NA".format(
                 self.question.id, self.culture_id, self.source1)
-            
+
     class Meta:
         db_table = 'responses'
         unique_together = ("question", "culture")
@@ -158,18 +156,18 @@ class Response(ShowFieldType, PolymorphicModel):
 class IntegerResponse(Response):
     """Saves Integer Values"""
     response = models.IntegerField(blank=True, null=True)
-    
+
     class Meta:
         db_table = 'responses_integers'
 
-    
+
 class FloatResponse(Response):
     """Saves Float Values"""
     response = models.FloatField(blank=True, null=True)
 
     class Meta:
         db_table = 'responses_floats'
-    
+
 
 class TextResponse(Response):
     """Saves Text Values"""
@@ -197,6 +195,7 @@ class OptionResponse(Response):
 
     class Meta:
         db_table = 'responses_options'
-    
+
+
 statistic.register("Number of Questions", Question, graph=3)
 statistic.register("Number of Responses", Response, graph=4)

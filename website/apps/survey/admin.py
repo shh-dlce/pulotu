@@ -1,5 +1,4 @@
 import django.forms as forms
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, RequestContext
 from django.contrib import admin
@@ -29,8 +28,8 @@ class QuestionAdmin(TrackedModelAdmin, VersionAdmin, PolymorphicParentModelAdmin
         (Question, QuestionChildAdmin),
         (OptionQuestion, QuestionChildAdmin),
     ]
-    changeSuccess = Template('Successfully changed question numbers') 
-    
+    changeSuccess = Template('Successfully changed question numbers')
+
     class NumberForm(forms.Form):
         _selected_action = forms.CharField(widget=forms.MultipleHiddenInput)
         offset = forms.IntegerField()
@@ -61,8 +60,8 @@ class QuestionAdmin(TrackedModelAdmin, VersionAdmin, PolymorphicParentModelAdmin
                 request,
                 {'links': queryset, 'form': form, 'path': request.get_full_path()}))
 
-    questionNumber.short_description = 'Change question number(s)' 
-    
+    questionNumber.short_description = 'Change question number(s)'
+
     categorySuccess = Template('Successfully changed section(s) and subsection(s)')
 
     class CategoryForm(forms.Form):
@@ -100,17 +99,19 @@ class QuestionAdmin(TrackedModelAdmin, VersionAdmin, PolymorphicParentModelAdmin
                 request,
                 {'links': queryset, 'form': form, 'path': request.get_full_path()}))
 
-    changeCategory.short_description = 'Change section' 
+    changeCategory.short_description = 'Change section'
 
-    
+
 # Responses.
+
+
 class ResponseAdmin(TrackedModelAdmin, VersionAdmin):
     date_hierarchy = 'added'
     list_filter = ('author', 'question', 'culture')
     ordering = ('id',)
     search_fields = ('codersnotes',)
     list_display = ('question', 'culture', 'author')
-    
+
 
 class FloatResposeAdmin(TrackedModelAdmin, VersionAdmin):
     date_hierarchy = 'added'
@@ -142,7 +143,7 @@ class OptionResponseAdmin(TrackedModelAdmin, VersionAdmin):
     ordering = ('id',)
     search_fields = ('codersnotes',)
     list_display = ('question', 'culture', 'author', 'response')
- 
+
 
 admin.site.register(Response, ResponseAdmin)
 admin.site.register(Question, QuestionAdmin)

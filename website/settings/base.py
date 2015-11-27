@@ -136,7 +136,6 @@ TEMPLATE_CONTEXT_PROCESSORS = [
     "website.apps.core.context_processors.InjectSettings",
 ]
 
-
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -150,22 +149,22 @@ INSTALLED_APPS = [
     # Admin site
     'django.contrib.admin',
     'django.contrib.admindocs',
-    
+
     # third-party
-    'south',                             # south: database migrations
-    'reversion',                         # reversion: object version control.
-    'djangosecure',                      # django-secure: Security helper
-    'django_tables2',                    # django-tables2: tables helper
-    'watson',                            # search
-    'compressor',                        # django-compressor for asset compression
-    'django_nvd3',                       # for graphing statistics
+    'south',  # south: database migrations
+    'reversion',  # reversion: object version control.
+    'djangosecure',  # django-secure: Security helper
+    'django_tables2',  # django-tables2: tables helper
+    'watson',  # search
+    'compressor',  # django-compressor for asset compression
+    'django_nvd3',  # for graphing statistics
     'captcha',
     'django_select2',
     'axes',
     # website
-    'website.apps.core',                 # core functionality
-    'website.apps.statistics',           # statistics
-    'website.apps.survey',               # survey
+    'website.apps.core',  # core functionality
+    'website.apps.statistics',  # statistics
+    'website.apps.survey',  # survey
 ]
 
 LOGGING = {
@@ -212,7 +211,7 @@ LOGGING = {
             'class': 'django.utils.log.NullHandler',
         },
     },
-        
+
     'loggers': {
         'django': {
             'handlers': ['file_logging'],
@@ -248,15 +247,15 @@ CACHES = {
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 # maximum age of persistent database connection
-CONN_MAX_AGE = 64 
+CONN_MAX_AGE = 64
 
 # THIRD-PARTY SETTINGS ==========================================
 
 # Django-Security settings
-SECURE_FRAME_DENY = True          # prevent framing of pages.
+SECURE_FRAME_DENY = True  # prevent framing of pages.
 SECURE_BROWSER_XSS_FILTER = True  # enable XSS protection
-SESSION_COOKIE_SECURE = False     # can't login with True?
-SESSION_COOKIE_HTTPONLY = False   # can't login with True?
+SESSION_COOKIE_SECURE = False  # can't login with True?
+SESSION_COOKIE_HTTPONLY = False  # can't login with True?
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # South

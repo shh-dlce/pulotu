@@ -17,7 +17,7 @@ class CultureForm(forms.ModelForm):
         exclude = ('id', 'editor', 'added', 'slug')
         widgets = {'languages': Select2MultipleWidget()}
 
-        
+
 class SourceForm(forms.ModelForm):
     class Meta:
         model = Source

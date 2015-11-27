@@ -15,23 +15,22 @@ class ResponseForm(forms.ModelForm):
     # WARNING - this form does NOT allow you to edit the culture or the question!
     def __init__(self, *args, **kwargs):
         super(ResponseForm, self).__init__(*args, **kwargs)
-        instance = getattr(self, 'instance', None)
         self.fields['question'].widget.attrs['readonly'] = True
         self.fields['culture'].widget.attrs['readonly'] = True
-    
+
     def clean_culture(self):
         return self.initial['culture']
-    
+
     def clean_question(self):
         return self.initial['question']
-        
+
     class Meta:
-        model = Response 
+        model = Response
         hidden = ('question', 'culture')
         exclude = ('id', 'author', 'added',)
 
 
-# it seems that inheritence of exclude etc doesn't work, damn it. 
+# it seems that inheritence of exclude etc doesn't work, damn it.
 # so, have to define it for each form
 class IntegerResponseForm(ResponseForm):
     response = forms.IntegerField(required=False)
@@ -47,7 +46,7 @@ class IntegerResponseForm(ResponseForm):
             'response': forms.widgets.TextInput(attrs={'class': 'span6', 'rows': '3'}),
             'codersnotes': forms.widgets.Textarea(attrs={'class': 'span6', 'rows': '3'}),
         }
-    
+
     # to validate the form
     def clean(self):
         cleaned_data = super(IntegerResponseForm, self).clean()
@@ -58,14 +57,14 @@ class IntegerResponseForm(ResponseForm):
             return cleaned_data
         elif response == 0 and not source1:
             raise forms.ValidationError("Source 1 is a required field.")
-        
-        if not missing and not response: #if no response and not missing data
+
+        if not missing and not response:  # if no response and not missing data
             raise forms.ValidationError("Response is a required field.")
-        if response and not source1: #if response and no source
+        if response and not source1:  # if response and no source
             raise forms.ValidationError("Source 1 is a required field.")
         return cleaned_data
 
-        
+
 class FloatResponseForm(ResponseForm):
     response = forms.FloatField(required=False)
     missing = forms.BooleanField(required=False)
@@ -129,8 +128,8 @@ class TextResponseForm(ResponseForm):
 
 class OptionResponseForm(ResponseForm):
     response = forms.ChoiceField(
-        required=False, choices=(), widget=forms.RadioSelect(attrs={'class': 'radios'}),)
-    
+        required=False, choices=(), widget=forms.RadioSelect(attrs={'class': 'radios'}), )
+
     class Meta:
         model = OptionResponse
         hidden = ('id', 'question', 'culture')
@@ -148,7 +147,7 @@ class OptionResponseForm(ResponseForm):
         response = cleaned_data.get("response")
         source1 = cleaned_data.get("source1")
         missing = cleaned_data.get("missing")
-        
+
         # if both missing data and response are chosen the form will be validated and
         # in views.py, response is saved as '?'
         if not response and not missing:  # if no response is given, raise an error
@@ -161,8 +160,8 @@ class OptionResponseForm(ResponseForm):
 
 def get_response_type(response_type=None):
     """Returns the correct Response model type for the given field type"""
-    # I could do this more elegantly by getattr and instantiating based on 
-    # the stored value, but this way gives me top down control and a bit of 
+    # I could do this more elegantly by getattr and instantiating based on
+    # the stored value, but this way gives me top down control and a bit of
     # safety
     if response_type is None:
         return Response
@@ -180,8 +179,8 @@ def get_response_type(response_type=None):
 
 def get_form_type(response_type=None):
     """Returns the correct Response form type for the given field type"""
-    # I could do this more elegantly by getattr and instantiating based on 
-    # the stored value, but this way gives me top down control and a bit of 
+    # I could do this more elegantly by getattr and instantiating based on
+    # the stored value, but this way gives me top down control and a bit of
     # safety
     if response_type is None:
         return ResponseForm
@@ -202,9 +201,9 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     # get all questions for the section and culture.
     assert culture_obj is not None, "culture object cannot be None."
     assert section_obj is not None, "section object cannot be None."
-    
+
     forms = []
-    
+
     # get all existing Responses
     responses = {}
     source1 = {}
@@ -212,10 +211,9 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
             culture=culture_obj, question__section=section_obj):
         responses[r.question_id] = r
         source1[r.question_id] = r.source1
-    # loop over questions in this section and inject with existing 
+    # loop over questions in this section and inject with existing
     # responses & post data
     for q in Question.objects.all().order_by('number').filter(section=section_obj):
-        rtype = get_response_type(q.response_type)
         formtype = get_form_type(q.response_type)
         # manuipulate response to constrain cultures/questions
         resp = responses.get(q.id, None)
@@ -225,7 +223,7 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
             resp.question = q
             resp.source1 = s
 
-        # create a form, injecting POST data 
+        # create a form, injecting POST data
         form = formtype(
             post_data,
             instance=resp,
@@ -235,7 +233,7 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
         # add correct choices for OptionForms
         if formtype == OptionResponseForm:
             form.fields['response'].choices = q.get_choices(with_empty=True)
-        
+
         # add these here so I can get them in the template.
         form.qnumber = q.number
         form.qinformation = q.information

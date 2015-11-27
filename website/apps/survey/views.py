@@ -25,13 +25,13 @@ class SurveyIndex(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SurveyIndex, self).get_context_data(**kwargs)
-        
+
         # get counts
         totalq = Question.objects.count()
         answered = {}
         for d in Culture.objects.values('id').annotate(Count('response')):
             answered[d['id']] = d['response__count']
-    
+
         object_list = []
         for obj in Culture.objects.all():
             obj.qdone = answered.get(obj.id, 0)
@@ -41,7 +41,7 @@ class SurveyIndex(TemplateView):
                 if r.missing:
                     missing += 1
             obj.qmissing = missing
-            
+
             object_list.append(obj)
 
         context['table'] = SurveyIndexTable(object_list)
@@ -53,8 +53,8 @@ class SurveyIndex(TemplateView):
 
 
 @login_required()
-def indexx(request, slug):        
-    sections = []    
+def indexx(request, slug):
+    sections = []
     fullDict = defaultdict(list)
     culture = Culture.objects.all().filter(slug=slug)
     if culture:
@@ -93,7 +93,7 @@ def indexx(request, slug):
                     q.section.culture = culture.slug
                     q.section.missing = missing.get(q.section.id, 0)
                     subDict[str(q.subsection)].append(q.section)
-            
+
         fullDict[str(c)].append(OrderedDict(subDict))
 
     return render_to_response(
@@ -109,7 +109,7 @@ class SurveyCultureIndex(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(SurveyCultureIndex, self).get_context_data(**kwargs)
-        sections = []        
+        sections = []
         # get saved responses..
         responses = {}
         missing = {}
@@ -140,10 +140,10 @@ def SurveySectionEdit(request, culture, section):
     "Editing of Survey Section"
     culture_obj = get_object_or_404(Culture, slug=culture)
     section_obj = get_object_or_404(Section, slug=section)
-    forms = construct_section_forms(post_data=request.POST or None, 
-                                    culture_obj=culture_obj, 
+    forms = construct_section_forms(post_data=request.POST or None,
+                                    culture_obj=culture_obj,
                                     section_obj=section_obj)
-    
+
     status = []
     # save if necessary
     if request.method == 'POST':
@@ -158,12 +158,12 @@ def SurveySectionEdit(request, culture, section):
                     "Saved Response to question {0}.{1}".format(
                         section_obj.id, obj.question.number))
             else:
-                all_valid = False        
-        # if all forms are valid. Return to survey culture index
+                all_valid = False
+                # if all forms are valid. Return to survey culture index
         if all_valid:
             return HttpResponseRedirect(
                 reverse('survey-culture-index', kwargs={"slug": culture}))
-        # if not, fall through to the survey section edit again.
+            # if not, fall through to the survey section edit again.
     return render_to_response('survey/survey_section_edit.html', {
         'forms': forms, 'culture': culture_obj, 'section': section_obj, 'status': status,
     }, context_instance=RequestContext(request))
@@ -221,7 +221,6 @@ def download_dataset(request):
     response = HttpResponse(content_type='text')
     response['Content-Disposition'] = 'attachment; filename=pulotuDataset.txt'
     writer = UnicodeWriter(response, dialect=csv.excel_tab)
-    exportinfo = request.POST.get('exportinfo')
     cacheName = 'cache'
     headings = ['Culture']
     if request.user.is_authenticated():
@@ -234,7 +233,7 @@ def download_dataset(request):
         if not questionlist:
             return HttpResponse('<h1>Error, invalid POST data.</h1>')
         else:
-            questions = Question.objects.all()\
+            questions = Question.objects.all() \
                 .filter(id__in=questionlist).order_by('number')
             if len(questions) == Question.objects.all().count():
                 if cache.get('fulldataset') is not None:

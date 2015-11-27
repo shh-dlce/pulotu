@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
-
 import watson
 
 
@@ -31,7 +30,7 @@ class TrackedModel(models.Model):
     """Abstract base class containing editorial information"""
     editor = models.ForeignKey(User)
     added = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         abstract = True
         get_latest_by = 'added'
@@ -43,11 +42,11 @@ class Glossary(TrackedModel):
 
     def __unicode__(self):
         return self.term
-    
+
     class Meta:
         verbose_name_plural = 'Glossary Terms'
 
-    
+
 class Source(TrackedModel):
     """Source Details"""
     year = models.CharField(max_length=255, blank=True, null=True, db_index=True)
@@ -68,7 +67,7 @@ class Source(TrackedModel):
         blank=True, null=True, help_text="BibTeX entry")
     comment = models.TextField(
         blank=True, null=True, help_text="Private comment on source")
-    
+
     def __unicode__(self):
         if self.year is not None:
             return mark_safe("%s (%s)" % (self.author, self.year))
@@ -77,7 +76,7 @@ class Source(TrackedModel):
     @models.permalink
     def get_absolute_url(self):
         return ('source-detail', [self.slug])
-    
+
     class Meta:
         db_table = 'sources'
         ordering = ['author', 'year', ]
@@ -93,7 +92,7 @@ class Language(TrackedModel):
 
     classification = models.TextField(help_text="Classification String")
     abvdcode = models.IntegerField(db_index=True, unique=True, null=True, blank=True)
-    
+
     def __unicode__(self):
         return self.language
 
@@ -114,7 +113,7 @@ class Category(TrackedModel):
 
     def __unicode__(self):
         return self.category
-    
+
     class Meta:
         db_table = 'categories'
         ordering = ['category']
@@ -125,25 +124,25 @@ class Section(TrackedModel):
     category = models.ForeignKey(
         Category, blank=True, null=True, help_text="Category that this Section belongs to"
     )
-    
+
     section = models.CharField(max_length=128)
-    
+
     slug = models.SlugField(
         max_length=128, unique=True, help_text="`Slug` for this section (for use in URLS)"
     )
     notes = models.TextField(
         blank=True, null=True, help_text="Public Notes on this section")
-    
+
     number = models.IntegerField(blank=True, null=True)
-    
+
     def __unicode__(self):
         return self.section
 
     class Meta:
         db_table = 'sections'
         ordering = ['id']
-        
-            
+
+
 class Culture(TrackedModel):
     culture = models.CharField(
         max_length=128, db_index=True, unique=True, help_text="Name of culture")
@@ -151,7 +150,7 @@ class Culture(TrackedModel):
         max_length=128, help_text="`Slug` for this section (for use in URLS)")
     notes = models.TextField(
         blank=True, null=True, help_text="Brief description of culture (2-3 sentences)")
-    
+
     # need to change this name to ethnoyms!
     ethonyms = models.TextField(
         "Ethonyms",
@@ -164,13 +163,13 @@ class Culture(TrackedModel):
 
     languages = models.ManyToManyField(
         Language, help_text="The languages affiliated with this culture.")
-    
+
     coder = models.CharField(
         max_length=256, blank=True, null=True, help_text="Coder's full name")
 
     def __unicode__(self):
         return self.culture
-    
+
     @models.permalink
     def get_absolute_url(self):
         return ('culture-detail', [self.slug])
@@ -192,7 +191,8 @@ class Publication(TrackedModel):
 
     def __unicode__(self):
         return self.reference
-    
+
+
 watson.register(Glossary, TermSearchAdapter)
 watson.register(
     Culture,

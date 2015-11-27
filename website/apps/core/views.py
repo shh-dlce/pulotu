@@ -66,7 +66,7 @@ def frontPage(request):
         {'cultures': cultures.count()},
         context_instance=RequestContext(request))
 
-    
+
 def glossary(request):
     terms = Glossary.objects.all()
     #
@@ -129,7 +129,7 @@ def CultureIndex(request):
     return render_to_response(
         'core/culture_index.html',
         {'ethonyms': OrderedDict(ethonymDict), 'latlong': locations},
-        context_instance=RequestContext(request),)
+        context_instance=RequestContext(request), )
 
 
 def compareCultures(request):
@@ -151,11 +151,11 @@ def compareCultures(request):
         choices = quest.get_pub_choices()
         for r in Response.objects.all().filter(question=quest).exclude(missing=True):
             try:
-                latitude = Response.objects.all()\
-                    .filter(culture=r.culture)\
+                latitude = Response.objects.all() \
+                    .filter(culture=r.culture) \
                     .filter(question__simplified_question='Latitude')[0].response
-                longitude = Response.objects.all()\
-                    .filter(culture=r.culture)\
+                longitude = Response.objects.all() \
+                    .filter(culture=r.culture) \
                     .filter(question__simplified_question='Longitude')[0].response
             except:
                 latitude = None
@@ -171,7 +171,7 @@ def compareCultures(request):
         return HttpResponse(json.dumps(data), content_type='application/json')
 
     locations = []
-    
+
     for c in Culture.objects.all():
         cultureResponses = Response.objects.all().filter(culture=c)
         try:
@@ -187,12 +187,12 @@ def compareCultures(request):
                 {"lat": lat, "long": longi, "culture": c.culture, "slug": c.slug})
 
     categories = Category.objects.all().order_by('number')
-    questions = Question.objects.all()\
+    questions = Question.objects.all() \
         .filter(response_type=Question.RESPONSETYPE_OPTION).order_by('section__number')
     fullDict = defaultdict(list)
-    
+
     for c in categories:
-        subsections = Section.objects.all()\
+        subsections = Section.objects.all() \
             .filter(category=c).order_by('number').exclude(section__contains='Time Focus')
         subsectionDict = DefaultListOrderedDict()
         for section in subsections:
@@ -203,17 +203,17 @@ def compareCultures(request):
                     nary[str(q.section)].append(q)
                 elif request.user.is_authenticated():
                     nary[str(q.section)].append(q)
-            
+
             if nary:
                 subsectionDict[str(section)].append(OrderedDict(nary))
         fullDict[str(c)].append(OrderedDict(subsectionDict))
-            
+
     return render_to_response(
         'core/compare_cultures.html',
         {'latlong': locations, 'full': dict(fullDict)},
         context_instance=RequestContext(request))
 
-    
+
 def details(request, slug):
     culture = get_object_or_404(Culture, slug=slug)
     # get all responses for this culture
@@ -228,18 +228,18 @@ def details(request, slug):
     # get latitude and longitude (for map of location)
     categories = Category.objects.all().order_by('number')
     send = []
-    
+
     try:
         latitude = queryset.filter(question__simplified_question='Latitude')[0].response
         longitude = queryset.filter(question__simplified_question='Longitude')[0].response
     except:
         latitude = None
         longitude = None
-    
-    timeF = queryset\
-        .filter(question__section__section__contains='Time Focus')\
+
+    timeF = queryset \
+        .filter(question__section__section__contains='Time Focus') \
         .order_by('question__section__number')
-    
+
     source_list = set()  # get list of sources for references section
     for r in queryset:
         if r.source1 is not None and str(r.source1) != 'Source not applicable (2014)':
@@ -255,14 +255,14 @@ def details(request, slug):
     source_list = sorted(source_list, key=lambda source: source.reference, reverse=False)
 
     fullDict = defaultdict(list)
-    
+
     for c in categories:
-        subsections = Section.objects.all()\
+        subsections = Section.objects.all() \
             .filter(category=c).order_by('number').exclude(section__contains='Time Focus')
         subsectionDict = DefaultListOrderedDict()
         for section in subsections:
-            filt = queryset\
-                .filter(question__subsection=section)\
+            filt = queryset \
+                .filter(question__subsection=section) \
                 .order_by('question__section__number', 'question__publicNumber')
             nary = DefaultListOrderedDict()
             for q in filt:
@@ -273,7 +273,7 @@ def details(request, slug):
                     subsectionDict[str(section)].append(OrderedDict(nary))
             except:
                 subsectionDict[str(section)].append('')
-        
+
             if subsectionDict:
                 fullDict[str(c)].append(OrderedDict(subsectionDict))
                 added = False
@@ -287,16 +287,15 @@ def details(request, slug):
                 if not added and not c.timeFocus:
                     num = c.number
                     try:
-                        before = timeF\
+                        before = timeF \
                             .filter(question__section__number=(num - 1))[0].response
-                        after = timeF\
+                        after = timeF \
                             .filter(question__section__number=(num + 1))[0].response
                         if before.find('-') is not -1 and after.find('-') is not -1:
                             send.append({
                                 'category': c,
                                 'time': before.partition('-')[2] +
-                                '-' + after.partition('-')[0]
-                            })
+                                        '-' + after.partition('-')[0]})
                         elif before.find('-') is not -1:
                             send.append({
                                 'category': c,
@@ -378,7 +377,7 @@ def getPublications(request):
 def AddPublication(request):
     if request.method == 'POST':
         form = PublicationForm(request.POST)
-    
+
         if form.is_valid():
             s = form.save(commit=False)
             s.editor = request.user
@@ -387,7 +386,10 @@ def AddPublication(request):
 
     else:
         form = PublicationForm()
-    return render_to_response('admin/AddPublication.html', {'form': form}, context_instance=RequestContext(request))
+    return render_to_response(
+        'admin/AddPublication.html',
+        {'form': form},
+        context_instance=RequestContext(request))
 
 
 def contact_form(request):
@@ -397,9 +399,13 @@ def contact_form(request):
             name = form.cleaned_data['name']
             email = form.cleaned_data['email']
             comment = form.cleaned_data['comment']
-            message = 'Name: ' + name + '\n\nEmail: ' + email+ '\n\nComments: ' + comment        
+            message = 'Name: ' + name + '\n\nEmail: ' + email + '\n\nComments: ' + comment
             try:
-                send_mail("Contact Us Pulotu", message, "pulotu@josephwatts.org", ['pulotu@josephwatts.org',])            
+                send_mail(
+                    "Contact Us Pulotu",
+                    message,
+                    "pulotu@josephwatts.org",
+                    ['pulotu@josephwatts.org'])
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             return redirect(reverse('thankyou2'))
@@ -418,16 +424,21 @@ def request_form(request):
             affiliation = form.cleaned_data['affiliation']
             email = form.cleaned_data['email']
             reason = form.cleaned_data['reason']
-            message = 'Name: ' + name + '\n\nEmail: ' + email +'\n\nAffiliation: ' + affiliation + '\n\nReason for requesting dataset: ' + reason
+            message = 'Name: ' + name + '\n\nEmail: ' + email + \
+                      '\n\nAffiliation: ' + affiliation + \
+                      '\n\nReason for requesting dataset: ' + reason
             try:
-                send_mail("A user has downloaded the Pulotu dataset", message, "pulotu@josephwatts.org", ['pulotu@josephwatts.org',])            
+                send_mail(
+                    "A user has downloaded the Pulotu dataset",
+                    message,
+                    "pulotu@josephwatts.org",
+                    ['pulotu@josephwatts.org'])
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
             if cache.get('public') is not None:
                 return cache.get('public')
             response = download_dataset(request)
             return response
-            #return redirect('conditionsofuse')
     else:
         form = RegistrationForm()
     return render(request, "dataset.html", {"form": form})
@@ -435,14 +446,14 @@ def request_form(request):
 
 @login_required()
 def CultureEdit(request, slug=None):
-    "Editing of Cultures"
+    """Editing of Cultures"""
     if slug is None:
         c = None
         form = CultureForm(request.POST or None)
     else:
         c = get_object_or_404(Culture.objects, slug=slug)
         form = CultureForm(request.POST or None, instance=c)
-                
+
     if form.is_valid():
         c = form.save(commit=False)
         if not c.slug:
@@ -451,7 +462,7 @@ def CultureEdit(request, slug=None):
         c.save()
         form.save_m2m()
         return redirect(reverse('survey-culture-index', kwargs={"slug": c.slug}))
-    
+
     return render_to_response('core/culture_edit.html', {
         'form': form, 'culture': c
     }, context_instance=RequestContext(request))
@@ -459,15 +470,14 @@ def CultureEdit(request, slug=None):
 
 @login_required()
 def SourceEdit(request, slug=None):
-    
-    "Editing of Sources"
+    """Editing of Sources"""
     if slug is None:
         s = None
         form = SourceForm(request.POST or None)
     else:
         s = get_object_or_404(Source, slug=slug)
         form = SourceForm(request.POST or None, instance=s)
-    
+
     if form.is_valid():
         s = form.save(commit=False)
         if not s.slug:
@@ -475,7 +485,7 @@ def SourceEdit(request, slug=None):
         s.editor = request.user
         s.save()
         return redirect(reverse('admin:core_source_changelist'))
-    
+
     return render_to_response('core/source_edit.html', {
         'form': form, 'source': s
     }, context_instance=RequestContext(request))

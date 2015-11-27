@@ -7,6 +7,7 @@ from website.apps.core.models import (
 
 class TrackedModelAdmin(admin.ModelAdmin):
     """Mixin to automatically set editor field"""
+
     def add_view(self, request, form_url="", extra_context=None):
         data = request.GET.copy()
         data['editor'] = request.user.id
@@ -50,7 +51,7 @@ class SourceAdmin(TrackedModelAdmin, VersionAdmin):
     ordering = ('author', 'year')
     prepopulated_fields = {'slug': ('author', 'year')}
     search_fields = ('author', 'year')
-    
+
 
 class CultureAdmin(TrackedModelAdmin, VersionAdmin):
     date_hierarchy = 'added'
@@ -59,7 +60,8 @@ class CultureAdmin(TrackedModelAdmin, VersionAdmin):
     prepopulated_fields = {'slug': ('culture',)}
     search_fields = ('culture',)
     filter_horizontal = ('languages',)
-    
+
+
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Glossary, GlossaryAdmin)
 admin.site.register(Source, SourceAdmin)

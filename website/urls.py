@@ -5,11 +5,9 @@ from django.contrib import admin
 from website.apps.core.views import RobotsTxt
 from website.apps.survey.views import SurveyIndex
 from django.conf.urls import patterns, include, url
-
 from sitemap import sitemaps
 
 admin.autodiscover()
-
 
 urlpatterns = patterns(
     '',
@@ -66,7 +64,7 @@ urlpatterns = patterns(
         name="compare_cultures"),
 
     # Survey
-    url(r'^survey/$', SurveyIndex.as_view(), 
+    url(r'^survey/$', SurveyIndex.as_view(),
         name="survey-index"),
     # url(r'^survey/(?P<slug>.+)/$', SurveyCultureIndex.as_view(),
     #     name="survey-culture-index"),
@@ -81,9 +79,9 @@ urlpatterns = patterns(
     # ------------------------------------------------------------------------ #
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', 
-        {'template_name': 'login.html'}, 
+
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login',
+        {'template_name': 'login.html'},
         name="login"),
     url(r'^password_reset_complete/$', 'website.apps.core.views.PWreset',
         name="password_reset_complete"),
@@ -98,12 +96,12 @@ urlpatterns = patterns(
         RedirectView.as_view(url='%s/favicon.ico' % settings.STATIC_URL)),
 )
 
-
 # ------------------------------------------------------------------------ #
 # Debug Media...
 # ------------------------------------------------------------------------ #
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns += patterns(
         '',
         url(r'^__debug__/', include(debug_toolbar.urls)),
