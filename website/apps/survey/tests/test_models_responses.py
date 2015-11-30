@@ -3,29 +3,42 @@ from django.test import TestCase
 from textwrap import dedent
 from website.apps.core.models import Culture, Source, Section
 from website.apps.survey.models import Question, OptionQuestion, Response
-from website.apps.survey.models import IntegerResponse, FloatResponse, TextResponse, OptionResponse
+from website.apps.survey.models import IntegerResponse, FloatResponse, TextResponse, \
+    OptionResponse
+
 
 class ModelsMixin(object):
     """Tests the Polymorphic Models"""
+
     def setUp(self):
-        return
         self.editor = User.objects.create(username='admin')
-        self.source = Source.objects.create(year=1991, author='Smith', 
-                                    slug='Smith1991', reference='S2',
-                                    comment='c1', editor=self.editor)
-        self.culture = Culture.objects.create(culture='Maori', 
-                                    slug='maori', editor=self.editor)
-        self.section = Section.objects.create(section="Test", slug="test",
-                                    editor=self.editor)
-        self.question = Question.objects.create(section=self.section,
-                                    number=1, question='Where are you?',
-                                    information="..", editor=self.editor)
+        self.source = Source.objects.create(
+            year=1991, author='Smith',
+            slug='Smith1991', reference='S2',
+            comment='c1', editor=self.editor)
+        self.culture = Culture.objects.create(
+            id=1,
+            culture='Maori',
+            slug='maori',
+            editor=self.editor)
+        self.section = Section.objects.create(
+            section="Test",
+            slug="test",
+            editor=self.editor)
+        self.subsection = Section.objects.create(
+            section="Sub", slug="sub",
+            editor=self.editor)
+        self.question = Question.objects.create(
+            id=1,
+            section=self.section,
+            subsection=self.subsection,
+            number=1, question='Where are you?',
+            information="..", editor=self.editor)
         self.create()
-    
+
     def create(self):
         # subclass in children.
         pass
-
 
 
 class TestResponse(ModelsMixin, TestCase):
@@ -34,22 +47,20 @@ class TestResponse(ModelsMixin, TestCase):
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source
+            source1=self.source
         )
         r.save()
 
     def test_repr(self):
-        return
         r = Response.objects.all()[0]
-        assert repr(r) == 'Response: 1-1-1: NA'
+        assert repr(r) == 'Response: 1-1-Smith (1991): NA'
 
     def test_create(self):
-        return
         r = Response.objects.all()[0]
         assert r.author == self.editor
         assert r.culture == self.culture
         assert r.question == self.question
-        assert r.source == self.source
+        assert r.source1 == self.source
 
 
 class TestIntegerResponse(ModelsMixin, TestCase):
@@ -58,41 +69,35 @@ class TestIntegerResponse(ModelsMixin, TestCase):
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=response
         )
         r.save()
         return r
-    
+
     def test_repr(self):
-        return
         r = Response.objects.all()[0]
-        assert repr(r) == 'Response: 1-1-1: 99'
+        self.assertEquals(repr(r), 'Response: 1-1-Smith (1991): 99')
 
     def test_get_from_response(self):
-        return
         assert len(Response.objects.all()) == 1
-    
+
     def test_get_from_subclass(self):
-        return
         assert len(IntegerResponse.objects.all()) == 1
-    
+
     def test_cant_get_from_subclass(self):
-        return
         assert len(FloatResponse.objects.all()) == 0
         assert len(TextResponse.objects.all()) == 0
-    
+
     def test_create(self):
-        return
         r = IntegerResponse.objects.all()[0]
         assert r.author == self.editor
         assert r.culture == self.culture
         assert r.question == self.question
-        assert r.source == self.source
+        assert r.source1 == self.source
         assert r.response == 99
 
     def test_cant_get_from_subclass(self):
-        return
         assert len(FloatResponse.objects.all()) == 0
 
 
@@ -102,37 +107,32 @@ class TestFloatResponse(ModelsMixin, TestCase):
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=response
         )
         r.save()
         return r
-    
+
     def test_repr(self):
-        return
         r = Response.objects.all()[0]
-        assert repr(r) == 'Response: 1-1-1: 99.9'
-    
+        self.assertEquals(repr(r), 'Response: 1-1-Smith (1991): 99.9')
+
     def test_get_from_response(self):
-        return
         assert len(Response.objects.all()) == 1
-    
+
     def test_get_from_subclass(self):
-        return
         assert len(FloatResponse.objects.all()) == 1
-    
+
     def test_cant_get_from_subclass(self):
-        return
         assert len(IntegerResponse.objects.all()) == 0
         assert len(TextResponse.objects.all()) == 0
-    
+
     def test_create(self):
-        return
         r = FloatResponse.objects.all()[0]
         assert r.author == self.editor
         assert r.culture == self.culture
         assert r.question == self.question
-        assert r.source == self.source
+        assert r.source1 == self.source
         assert r.response == 99.9
 
 
@@ -142,37 +142,32 @@ class TestTextResponse(ModelsMixin, TestCase):
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=response
         )
         r.save()
         return r
-    
+
     def test_repr(self):
-        return
         r = Response.objects.all()[0]
-        assert repr(r) == 'Response: 1-1-1: This is \n Some Text'
-    
+        assert repr(r) == 'Response: 1-1-Smith (1991): This is \n Some Text'
+
     def test_get_from_response(self):
-        return
         assert len(Response.objects.all()) == 1
-    
+
     def test_get_from_subclass(self):
-        return
         assert len(TextResponse.objects.all()) == 1
-    
+
     def test_cant_get_from_subclass(self):
-        return
         assert len(IntegerResponse.objects.all()) == 0
         assert len(FloatResponse.objects.all()) == 0
-    
+
     def test_create(self):
-        return
         r = TextResponse.objects.all()[0]
         assert r.author == self.editor
         assert r.culture == self.culture
         assert r.question == self.question
-        assert r.source == self.source
+        assert r.source1 == self.source
         assert r.response == "This is \n Some Text"
 
 
@@ -182,43 +177,36 @@ class TestOptionResponse(ModelsMixin, TestCase):
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=response,
             response_text="blah blah blah"
         )
         r.save()
         return r
-    
+
     def test_repr(self):
-        return
-        r = Response.objects.all()[0]
-        assert repr(r) == 'Response: 1-1-1: 0'
-    
+        r = Response.objects.all()
+        self.assertEquals(repr(r[0]), 'Response: 1-1-Smith (1991): 0')
+
     def test_get_from_response(self):
-        return
         assert len(Response.objects.all()) == 1
-    
+
     def test_get_from_subclass(self):
-        return
         assert len(OptionResponse.objects.all()) == 1
-    
+
     def test_cant_get_from_subclass(self):
-        return
-        assert len(IntegerResponse.objects.all()) == 0
         assert len(FloatResponse.objects.all()) == 0
-    
+
     def test_create(self):
-        return
         r = OptionResponse.objects.all()[0]
         assert r.author == self.editor
         assert r.culture == self.culture
         assert r.question == self.question
-        assert r.source == self.source
+        assert r.source1 == self.source
         assert r.response == "0"
         assert r.response_text == 'blah blah blah'
 
     def test_save_sets_response_text(self):
-        return
         q = OptionQuestion.objects.create(
             number=9,
             question="Is 9 a good number?",
@@ -227,6 +215,7 @@ class TestOptionResponse(ModelsMixin, TestCase):
             (1) no
             """),
             section=self.section,
+            subsection=self.subsection,
             editor=self.editor
         )
         q.save()
@@ -234,7 +223,7 @@ class TestOptionResponse(ModelsMixin, TestCase):
             question=q,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response='0',
         )
         r.save()
@@ -246,44 +235,45 @@ class TestOptionResponse(ModelsMixin, TestCase):
 
 class TestHeterogenousResponses(ModelsMixin, TestCase):
     """Test that we can get a heterogenous mix of responses"""
+
     def create(self):
         self.responses = []
-        self.question2 = Question.objects.create(section=self.section,
-                                    number=2, question='How old are you?',
-                                    information="..", editor=self.editor)
-        self.question3 = Question.objects.create(section=self.section,
-                                    number=3, question='Where is Simon?',
-                                    information="..", editor=self.editor)
-        
+        self.question2 = Question.objects.create(
+            section=self.section,
+            subsection=self.subsection,
+            number=2, question='How old are you?',
+            information="..", editor=self.editor)
+        self.question3 = Question.objects.create(
+            section=self.section,
+            subsection=self.subsection,
+            number=3, question='Where is Simon?',
+            information="..", editor=self.editor)
+
         self.responses.append(TextResponse.objects.create(
             question=self.question,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response="Hello world"
         ))
         self.responses.append(FloatResponse.objects.create(
             question=self.question2,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=99.9
         ))
         self.responses.append(IntegerResponse.objects.create(
             question=self.question3,
             culture=self.culture,
             author=self.editor,
-            source=self.source,
+            source1=self.source,
             response=1
         ))
-    
+
     def test_count(self):
-        return
         assert len(Response.objects.all()) == 3
-    
+
     def test_all(self):
-        return
         for r in Response.objects.all():
             assert r in self.responses
-    
-
