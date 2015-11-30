@@ -2,7 +2,7 @@
 ## Running the tests
 
 ```
-coverage run --source='.' manage.py test --failfast
+coverage run --source='.' --omit='website/apps/*/migrations/*' manage.py test --failfast
 coverage report
 ```
 

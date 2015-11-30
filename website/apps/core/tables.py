@@ -27,10 +27,7 @@ class DataTable(tables.Table):
     class Meta:
         orderable = True
         default = u''
-        attrs = {
-            'class': "table table-bordered table-condensed",
-            'summary': '',
-        }
+        attrs = {'class': "table table-bordered table-condensed", 'summary': ''}
 
 
 class SourceIndexTable(DataTable):

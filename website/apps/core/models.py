@@ -11,8 +11,7 @@ class SearchAdapter(watson.SearchAdapter):
     def get_content(self, obj):
         if obj.ethonyms:
             return 'Synonyms: ' + obj.ethonyms
-        else:
-            return ''
+        return ''
 
 
 class TermSearchAdapter(watson.SearchAdapter):

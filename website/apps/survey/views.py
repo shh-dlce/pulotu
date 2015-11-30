@@ -14,8 +14,14 @@ from website.apps.survey.tables import SurveyIndexTable, SurveyCultureIndexTable
 from django.http import HttpResponse, HttpResponseRedirect
 import csv
 from collections import defaultdict, OrderedDict
-from website.apps.core.views import DefaultListOrderedDict
+from website.apps.core.views import DefaultListOrderedDict, sources
 from django.core.cache import cache
+
+
+def _download(filename):
+    response = HttpResponse(content_type='text')
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+    return response
 
 
 class SurveyIndex(TemplateView):
@@ -41,7 +47,6 @@ class SurveyIndex(TemplateView):
                 if r.missing:
                     missing += 1
             obj.qmissing = missing
-
             object_list.append(obj)
 
         context['table'] = SurveyIndexTable(object_list)
@@ -174,7 +179,8 @@ def _stringify(s, encoding, errors):
         return ''
     if isinstance(s, unicode):
         return s.encode(encoding, errors)
-    elif isinstance(s, (int, float)):
+
+    if isinstance(s, (int, float)):
         pass  # let csv.QUOTE_NONNUMERIC do its thing.
     elif not isinstance(s, str):
         s = str(s)
@@ -193,7 +199,7 @@ def _unicodify(s, encoding):
         return None
     if isinstance(s, (unicode, int, float)):
         return s
-    elif isinstance(s, str):
+    if isinstance(s, str):
         return s.decode(encoding)
     return s
 
@@ -218,53 +224,48 @@ class UnicodeWriter(object):
 
 
 def download_dataset(request):
-    response = HttpResponse(content_type='text')
-    response['Content-Disposition'] = 'attachment; filename=pulotuDataset.txt'
+    response = _download('pulotuDataset.txt')
     writer = UnicodeWriter(response, dialect=csv.excel_tab)
     cacheName = 'cache'
     headings = ['Culture']
     if request.user.is_authenticated():
         headings.append('Culture_Notes')
-    headings.append('isocode')
-    headings.append('ABVD_Code')
+    headings.extend(['isocode', 'ABVD_Code'])
+
+    def heading(q, label):
+        return 'v' + str(q.number) + '.' + label.replace(' ', '_')
 
     if request.user.is_authenticated():
         questionlist = request.POST.getlist('questions')
         if not questionlist:
             return HttpResponse('<h1>Error, invalid POST data.</h1>')
-        else:
-            questions = Question.objects.all() \
-                .filter(id__in=questionlist).order_by('number')
-            if len(questions) == Question.objects.all().count():
-                if cache.get('fulldataset') is not None:
-                    return cache.get('fulldataset')
-                else:
-                    cacheName = 'fulldataset'
-            for q in questions:
-                if cacheName is not 'fulldataset':
-                    cacheName = cacheName + str(q.number)
-                if q.simplified_question:
-                    headings.append(
-                        'v' + str(q.number) + '.' + q.simplified_question.replace(
-                            ' ', '_'))
-                else:
-                    headings.append(
-                        'v' + str(q.number) + '.' + q.question.replace(' ', '_'))
-                headings.append('v' + str(q.number) + '.Source')
-                headings.append('v' + str(q.number) + '.Notes')
-                headings.append('v' + str(q.number) + '.Uncertainty')
-            if cache.get(cacheName) is not None:
-                return cache.get(cacheName)
+
+        questions = Question.objects.all() \
+            .filter(id__in=questionlist).order_by('number')
+        if len(questions) == Question.objects.all().count():
+            if cache.get('fulldataset') is not None:
+                return cache.get('fulldataset')
+            cacheName = 'fulldataset'
+        for q in questions:
+            if cacheName is not 'fulldataset':
+                cacheName = cacheName + str(q.number)
+            if q.simplified_question:
+                headings.append(heading(q, q.simplified_question))
+            else:
+                headings.append(heading(q, q.question))
+            for label in ['Source', 'Notes', 'Uncertainty']:
+                headings.append(heading(q, label))
+        if cache.get(cacheName) is not None:
+            return cache.get(cacheName)
     else:
         # get all public questions
         questions = Question.objects.all().filter(displayPublic=False).order_by('number')
         for q in questions:
             if q.simplified_question:
-                headings.append(
-                    'v' + str(q.number) + '.' + q.simplified_question.replace(' ', '_'))
+                headings.append(heading(q, q.simplified_question))
             else:
-                headings.append('v' + str(q.number) + '.' + q.question.replace(' ', '_'))
-            headings.append('v' + str(q.number) + '.Source')
+                headings.append(heading(q, q.question))
+            headings.append(heading(q, 'Source'))
     writer.writerow(headings)
     if cache.get('cultures') is None:
         cache.set('cultures', Culture.objects.all().prefetch_related('languages'))
@@ -284,10 +285,7 @@ def download_dataset(request):
         if request.user.is_authenticated():
             resplist.append(culture.notes)
         resplist.append('; '.join(isocodes))
-        if not abvdcodes:
-            resplist.append('')
-        else:
-            resplist.append('; '.join(abvdcodes))
+        resplist.append('; '.join(abvdcodes) if abvdcodes else '')
         culture_responses = responses.filter(culture=culture).order_by('question__number')
         for q in questions:
             try:
@@ -295,11 +293,9 @@ def download_dataset(request):
             except:
                 r = None
             if r is None:
-                resplist.append('')
-                resplist.append('')
+                resplist.extend(['', ''])
                 if request.user.is_authenticated():
-                    resplist.append('')
-                    resplist.append('')
+                    resplist.extend(['', ''])
             else:
                 if r.missing:
                     resplist.append('?')
@@ -308,48 +304,33 @@ def download_dataset(request):
                         resplist.append(' '.join(r.response.split()))
                     except:
                         resplist.append(r.response)
-                sources = ''
-                if r.source1 is not None:
-                    sources = str(r.source1) + ' pp ' + str(r.page1)
-                if r.source2 is not None:
-                    sources += '; ' + str(r.source2) + ' pp ' + str(r.page2)
-                if r.source3 is not None:
-                    sources += '; ' + str(r.source3) + ' pp ' + str(r.page3)
-                if r.source4 is not None:
-                    sources += '; ' + str(r.source4) + ' pp ' + str(r.page4)
-                if r.source5 is not None:
-                    sources += '; ' + str(r.source5) + ' pp ' + str(r.page5)
+                sources = '; '.join([
+                    ' pp '.join(
+                        map(str, [getattr(r, 'source' + i), getattr(r, 'page' + i)]))
+                    for i in '12345' if getattr(r, 'source' + i)])
+
                 resplist.append(' '.join(sources.split()))
                 if request.user.is_authenticated():
-                    resplist.append(' '.join(r.codersnotes.split()))
-                    resplist.append(r.uncertainty)
+                    resplist.extend([' '.join(r.codersnotes.split()), r.uncertainty])
         writer.writerow(resplist)
-    if request.user.is_authenticated():
-        if cacheName is 'fulldataset':
-            cache.set('fulldataset', response, 3600)
-        else:
-            cache.set(cacheName, response, 3600)
-    else:
-        cache.set('public', response, 3600)
+    cache.set(cacheName if request.user.is_authenticated() else 'public', response, 3600)
     return response
 
 
 @login_required()
 def chooseexport(request):
+    if request.method == 'POST':
+        return download_dataset(request)
+
     allquestions = Question.objects.all()
-    fullDict = DefaultListOrderedDict()
     for q in allquestions:
         if q.displayPublic is None:
             q.displayPublic = False
-    if request.method == 'POST':
-        response = download_dataset(request)
-        return response
-    else:
-        for c in Category.objects.all().order_by('number'):
-            subsections = Section.objects.all().filter(category=c).order_by('number')
-            for section in subsections:
-                filt = allquestions.filter(subsection=section)
-                fullDict[section].append(filt)
+
+    fullDict = DefaultListOrderedDict()
+    for c in Category.objects.all().order_by('number'):
+        for section in Section.objects.all().filter(category=c).order_by('number'):
+            fullDict[section].append(allquestions.filter(subsection=section))
     return render_to_response(
         'survey/excel_format.html',
         {'questions': OrderedDict(fullDict), 'exportinfo': ''},
@@ -360,35 +341,19 @@ def chooseexport(request):
 def download_references(request):
     if cache.get('refs') is not None:
         return cache.get('refs')
-    else:
-        filename = 'references.txt'
-        response = HttpResponse(content_type='text')
-        response['Content-Disposition'] = 'attachment; filename=' + filename
-        writer = UnicodeWriter(
-            response, delimiter='#', quoting=csv.QUOTE_NONE, escapechar=' ')
-        allresponses = Response.objects.all().select_related('culture')
-        for culture in Culture.objects.all():
-            resps = allresponses.filter(culture=culture).select_related(
-                'source1', 'source2', 'source3', 'source4', 'source5')
-            refs = set()
-            for r in resps:
-                if r.source1 is not None \
-                        and str(r.source1) != 'Source not applicable (2014)':
-                    refs.add(r.source1)
-                if r.source2 is not None:
-                    refs.add(r.source2)
-                if r.source3 is not None:
-                    refs.add(r.source3)
-                if r.source4 is not None:
-                    refs.add(r.source4)
-                if r.source5 is not None:
-                    refs.add(r.source5)
-            refs = sorted(refs, key=lambda source: source.reference, reverse=False)
-            writer.writerow([culture])
-            for ref in refs:
-                writer.writerow([' '])
-                writer.writerow([ref.reference])
+
+    response = _download('references.txt')
+    writer = UnicodeWriter(
+        response, delimiter='#', quoting=csv.QUOTE_NONE, escapechar=' ')
+    allresponses = Response.objects.all().select_related('culture')
+    for culture in Culture.objects.all():
+        resps = allresponses.filter(culture=culture).select_related(
+            'source1', 'source2', 'source3', 'source4', 'source5')
+        writer.writerow([culture])
+        for ref in sources(resps):
             writer.writerow([' '])
-            writer.writerow(['----------------------------------'])
-        cache.set('refs', response, 3600)
-        return response
+            writer.writerow([ref.reference])
+        writer.writerow([' '])
+        writer.writerow(['----------------------------------'])
+    cache.set('refs', response, 3600)
+    return response

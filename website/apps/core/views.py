@@ -1,3 +1,6 @@
+from collections import defaultdict, OrderedDict
+from string import ascii_uppercase
+
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.defaultfilters import slugify
@@ -14,17 +17,56 @@ from website.apps.core.forms import (
 from website.apps.survey.models import Question, Response
 import json
 from axes.utils import reset
-from collections import defaultdict, OrderedDict
 from django.contrib.auth.forms import *
 from django.contrib.auth.views import password_reset, password_reset_complete
 from django.core.mail import send_mail, BadHeaderError
 from django.core.cache import cache
+
+#
+# FIXME: can we send email with this from address?
+#
+MAIL_FROM = "pulotu@josephwatts.org"
+MAIL_TO = [MAIL_FROM]
 
 
 class DefaultListOrderedDict(OrderedDict):
     def __missing__(self, k):
         self[k] = []
         return self[k]
+
+
+def sources(responses):
+    refs = set()
+    for r in responses:
+        if r.source1 is not None \
+                and str(r.source1) != 'Source not applicable (2014)':
+            refs.add(r.source1)
+        if r.source2 is not None:
+            refs.add(r.source2)
+        if r.source3 is not None:
+            refs.add(r.source3)
+        if r.source4 is not None:
+            refs.add(r.source4)
+        if r.source5 is not None:
+            refs.add(r.source5)
+    return sorted(refs, key=lambda source: source.reference, reverse=False)
+
+
+def latlon(cultures):
+    lat, lon = None, None
+    try:
+        lat = cultures.filter(question__simplified_question='Latitude')[0].response
+        lon = cultures.filter(question__simplified_question='Longitude')[0].response
+    except:  # FIXME: what exactly can go wrong here?
+        pass
+    return lat, lon
+
+
+def mail(subject, message):
+    try:
+        send_mail(subject, message, MAIL_FROM, MAIL_TO)
+    except BadHeaderError:
+        return HttpResponse('Invalid header found.')
 
 
 class RobotsTxt(TemplateView):
@@ -38,7 +80,7 @@ def logUserIn(request):
         pass
         #
         # FIXME: It's impossible that the line below ever worked, because `login` wasn't
-        # impoted!
+        # imported!
         #
         # login(request, template_name='login.html')
     elif request.method == 'GET':
@@ -53,35 +95,25 @@ def resetPW(request):
 
 
 def PWreset(request):
-    client_ip = request.META['REMOTE_ADDR']
-    reset(ip=client_ip)
+    reset(ip=request.META['REMOTE_ADDR'])
     reset(username=request.user.username)
     return password_reset_complete(request)
 
 
 def frontPage(request):
-    cultures = Culture.objects.all().values_list('culture', 'slug')
     return render_to_response(
         'index.html',
-        {'cultures': cultures.count()},
+        {'cultures': Culture.objects.all().values_list('culture', 'slug').count()},
         context_instance=RequestContext(request))
 
 
 def glossary(request):
-    terms = Glossary.objects.all()
-    #
-    # FIXME: replace with str.ascii_uppercase
-    #
-    alphabets = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     glossaryDict = DefaultListOrderedDict()
-    for a in alphabets:
+    for a in ascii_uppercase:
         glossaryDict[a].append(None)
 
-    for t in terms:
-        firstLetter = str(t.term)[0]
-        glossaryDict[firstLetter].append(t)
+    for t in Glossary.objects.all():
+        glossaryDict[str(t.term)[0]].append(t)
 
     return render_to_response(
         'glossary.html',
@@ -94,37 +126,23 @@ def CultureIndex(request):
     locations = []
     cultures = []
     for c in Culture.objects.all():
-        cultureResponses = Response.objects.all().filter(culture=c)
-        if c.ethonyms is not None:
-            ethonyms = c.ethonyms.split('; ')
-            for e in ethonyms:
+        if c.ethonyms:
+            for e in c.ethonyms.split('; '):
                 if len(e) > 0:
                     cultures.append({'culture': e, 'slug': c.slug})
         cultures.append({'culture': c.culture, 'slug': c.slug})
         cultures.sort()
 
-        try:
-            lat = cultureResponses.filter(
-                question__simplified_question='Latitude')[0].response
-            longi = cultureResponses.filter(
-                question__simplified_question='Longitude')[0].response
-        except:
-            lat = None
-            longi = None
+        lat, longi = latlon(Response.objects.all().filter(culture=c))
         if lat is not None and longi is not None:
             locations.append(
                 {"lat": lat, "long": longi, "culture": c.culture, "slug": c.slug})
 
     ethonymDict = DefaultListOrderedDict()
-    alphabets = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
-    for a in alphabets:
+    for a in ascii_uppercase:
         ethonymDict[a].append(None)
-        for d in cultures:
-            firstLetter = d['culture'][0]
-            ethonymDict[firstLetter].append(d)
+    for d in cultures:
+        ethonymDict[d['culture'][0]].append(d)
 
     return render_to_response(
         'core/culture_index.html',
@@ -139,30 +157,19 @@ def compareCultures(request):
         data = []
         try:
             quest = Question.objects.all().filter(question__exact=toRetrieve)[0]
-        except:
+        except:  # FIXME: IndexError?
             quest = Question.objects.all().filter(simplified_question=toRetrieve)[0]
-        choices = quest.get_choices()
         startsAtZero = False
-        for a in choices:
+        for a in quest.get_choices():
             if any("0" in s for s in a):
                 startsAtZero = True
                 break
 
-        choices = quest.get_pub_choices()
         for r in Response.objects.all().filter(question=quest).exclude(missing=True):
-            try:
-                latitude = Response.objects.all() \
-                    .filter(culture=r.culture) \
-                    .filter(question__simplified_question='Latitude')[0].response
-                longitude = Response.objects.all() \
-                    .filter(culture=r.culture) \
-                    .filter(question__simplified_question='Longitude')[0].response
-            except:
-                latitude = None
-                longitude = None
+            latitude, longitude = latlon(Response.objects.all().filter(culture=r.culture))
             data.append({
                 "Zero": startsAtZero,
-                "choices": choices,
+                "choices": quest.get_pub_choices(),
                 "response": str(r.response),
                 "culture": str(r.culture),
                 "slug": r.culture.slug,
@@ -174,14 +181,7 @@ def compareCultures(request):
 
     for c in Culture.objects.all():
         cultureResponses = Response.objects.all().filter(culture=c)
-        try:
-            lat = cultureResponses.filter(
-                question__simplified_question='Latitude')[0].response
-            longi = cultureResponses.filter(
-                question__simplified_question='Longitude')[0].response
-        except:
-            lat = None
-            longi = None
+        lat, longi = latlon(cultureResponses)
         if lat is not None and longi is not None:
             locations.append(
                 {"lat": lat, "long": longi, "culture": c.culture, "slug": c.slug})
@@ -223,36 +223,12 @@ def details(request, slug):
 
     queryset = Response.objects.all().filter(culture=culture)
 
-    # get languages
-    langs = culture.languages.all()
-    # get latitude and longitude (for map of location)
     categories = Category.objects.all().order_by('number')
     send = []
-
-    try:
-        latitude = queryset.filter(question__simplified_question='Latitude')[0].response
-        longitude = queryset.filter(question__simplified_question='Longitude')[0].response
-    except:
-        latitude = None
-        longitude = None
 
     timeF = queryset \
         .filter(question__section__section__contains='Time Focus') \
         .order_by('question__section__number')
-
-    source_list = set()  # get list of sources for references section
-    for r in queryset:
-        if r.source1 is not None and str(r.source1) != 'Source not applicable (2014)':
-            source_list.add(r.source1)
-        if r.source2 is not None:
-            source_list.add(r.source2)
-        if r.source3 is not None:
-            source_list.add(r.source3)
-        if r.source4 is not None:
-            source_list.add(r.source4)
-        if r.source5 is not None:
-            source_list.add(r.source5)
-    source_list = sorted(source_list, key=lambda source: source.reference, reverse=False)
 
     fullDict = defaultdict(list)
 
@@ -276,108 +252,70 @@ def details(request, slug):
 
             if subsectionDict:
                 fullDict[str(c)].append(OrderedDict(subsectionDict))
-                added = False
+                d = {'category': c}
 
                 for t in timeF:
                     if c.number is t.question.subsection.number and not c.timeFocus:
-                        send.append({'category': c, 'time': t.response})
-                        added = True
+                        d['time'] = t.response
                         break
+                else:  # no time set
+                    if not c.timeFocus:
+                        try:
+                            before = timeF.filter(
+                                question__section__number=(c.number - 1))[0].response
+                            after = timeF.filter(
+                                question__section__number=(c.number + 1))[0].response
+                            if before.find('-') is not -1 and after.find('-') is not -1:
+                                d['time'] = '-'.join(
+                                    [before.partition('-')[2], after.partition('-')[0]])
+                            elif before.find('-') is not -1:
+                                d['time'] = before.partition('-')[2] + '-' + after
+                            elif after.find('-') is not -1:
+                                d['time'] = before + '-' + after.partition('-')[0]
+                            else:
+                                d['time'] = before + '-' + after
+                        except:
+                            d['time'] = '?'
+                send.append(d)
 
-                if not added and not c.timeFocus:
-                    num = c.number
-                    try:
-                        before = timeF \
-                            .filter(question__section__number=(num - 1))[0].response
-                        after = timeF \
-                            .filter(question__section__number=(num + 1))[0].response
-                        if before.find('-') is not -1 and after.find('-') is not -1:
-                            send.append({
-                                'category': c,
-                                'time': before.partition('-')[2] +
-                                        '-' + after.partition('-')[0]})
-                        elif before.find('-') is not -1:
-                            send.append({
-                                'category': c,
-                                'time': before.partition('-')[2] + '-' + after
-                            })
-                        elif after.find('-') is not -1:
-                            send.append({
-                                'category': c,
-                                'time': before + '-' + after.partition('-')[0]
-                            })
-                        else:
-                            send.append({'category': c, 'time': before + '-' + after})
-                    except:
-                        send.append({'category': c, 'time': '?'})
-                elif not added and c.timeFocus:
-                    send.append({'category': c})
-
-        #
-        # FIXME: shouldn't the next block be outside of the loop?
-        #
-        cache.set(
-            cacheName,
-            render_to_response(
-                'core/culture_detail.html',
-                {
-                    'culture': culture,
-                    'langs': langs,
-                    'longitude': longitude,
-                    'latitude': latitude,
-                    'time': send,
-                    'source_list': source_list,
-                    'full': dict(fullDict)
-                },
-                context_instance=RequestContext(request)),
-            9600)
-
-    #
-    # FIXME: didn't we just compute this and put it in the cache?
-    #
-    return render_to_response(
+    latitude, longitude = latlon(queryset)
+    res = render_to_response(
         'core/culture_detail.html',
         {
             'culture': culture,
-            'langs': langs,
+            'langs': culture.languages.all(),
             'longitude': longitude,
             'latitude': latitude,
             'time': send,
-            'source_list': source_list,
+            'source_list': sources(queryset),
             'full': dict(fullDict)
         },
         context_instance=RequestContext(request))
+    cache.set(cacheName, res, 9600)
+    return res
 
 
 def getPublications(request):
     questions = Question.objects.all().filter(displayPublic=False)
-    cultures = Culture.objects.all().count()
-    religiousBelief = questions.filter(subsection__section__contains='Belief').count()
-    practice = questions.filter(subsection__section__contains='Practice').count()
-    socialEnv = questions.filter(
-        subsection__section__contains='Social Environment').count()
-    physEnv = questions.filter(subsection__section='Physical Environment').count()
-    physEnv += questions.filter(
-        subsection__section__contains='Physical Environment').count()
-    return render_to_response(
-        'about.html',
-        {
-            'cultures': cultures,
-            'relBelief': religiousBelief,
-            'relPractice': practice,
-            'publications': Publication.objects.all().order_by('reference'),
-            'social': socialEnv,
-            'physical': physEnv,
-            'questions': questions.count()
-        },
-        context_instance=RequestContext(request))
+    ctx = dict(
+        questions=questions.count(),
+        publications=Publication.objects.all().order_by('reference'),
+        cultures=Culture.objects.all().count())
+    for k, term in [
+        ('relBelief', 'Belief'),
+        ('relPractice', 'Practice'),
+        ('social', 'Social Environment'),
+        ('physical', 'Physical Environment'),
+    ]:
+        ctx[k] = questions.filter(subsection__section__contains=term).count()
+
+    return render_to_response('about.html', ctx, context_instance=RequestContext(request))
 
 
 @login_required()
 def AddPublication(request):
     if request.method == 'POST':
         form = PublicationForm(request.POST)
-
         if form.is_valid():
             s = form.save(commit=False)
             s.editor = request.user
@@ -400,14 +338,7 @@ def contact_form(request):
             email = form.cleaned_data['email']
             comment = form.cleaned_data['comment']
             message = 'Name: ' + name + '\n\nEmail: ' + email + '\n\nComments: ' + comment
-            try:
-                send_mail(
-                    "Contact Us Pulotu",
-                    message,
-                    "pulotu@josephwatts.org",
-                    ['pulotu@josephwatts.org'])
-            except BadHeaderError:
-                return HttpResponse('Invalid header found.')
+            mail("Contact Us Pulotu", message)
             return redirect(reverse('thankyou2'))
     else:
         form = ContactForm()
@@ -427,14 +358,7 @@ def request_form(request):
             message = 'Name: ' + name + '\n\nEmail: ' + email + \
                       '\n\nAffiliation: ' + affiliation + \
                       '\n\nReason for requesting dataset: ' + reason
-            try:
-                send_mail(
-                    "A user has downloaded the Pulotu dataset",
-                    message,
-                    "pulotu@josephwatts.org",
-                    ['pulotu@josephwatts.org'])
-            except BadHeaderError:
-                return HttpResponse('Invalid header found.')
+            mail("A user has downloaded the Pulotu dataset", message)
             if cache.get('public') is not None:
                 return cache.get('public')
             response = download_dataset(request)
@@ -463,9 +387,10 @@ def CultureEdit(request, slug=None):
         form.save_m2m()
         return redirect(reverse('survey-culture-index', kwargs={"slug": c.slug}))
 
-    return render_to_response('core/culture_edit.html', {
-        'form': form, 'culture': c
-    }, context_instance=RequestContext(request))
+    return render_to_response(
+        'core/culture_edit.html',
+        {'form': form, 'culture': c},
+        context_instance=RequestContext(request))
 
 
 @login_required()
@@ -486,6 +411,7 @@ def SourceEdit(request, slug=None):
         s.save()
         return redirect(reverse('admin:core_source_changelist'))
 
-    return render_to_response('core/source_edit.html', {
-        'form': form, 'source': s
-    }, context_instance=RequestContext(request))
+    return render_to_response(
+        'core/source_edit.html',
+        {'form': form, 'source': s},
+        context_instance=RequestContext(request))
