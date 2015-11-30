@@ -5,18 +5,22 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from website.apps.core.models import Language, Culture, Source
 
-from website.apps.statistics import Statistic, AlreadyRegistered, InvalidMethod, InvalidField
+from website.apps.statistics import (
+    Statistic, AlreadyRegistered, InvalidMethod, InvalidField,
+)
 from website.apps.statistics.models import StatisticalValue
+
 
 class StatisticTest(TestCase):
     def setUp(self):
         self.editor = User.objects.create(username='admin')
-        self.lang1 = Language.objects.create(language='A',classification='a, b',
-                                             isocode='aaa', editor=self.editor)
-        self.lang2 = Language.objects.create(language='B', classification='c, d, e',
-                                             isocode='bbb', editor=self.editor)
-        self.cult1 = Culture.objects.create(culture='Maori', slug='maori', editor=self.editor)
-        
+        self.lang1 = Language.objects.create(
+            language='A', classification='a, b', isocode='aaa', editor=self.editor)
+        self.lang2 = Language.objects.create(
+            language='B', classification='c, d, e', isocode='bbb', editor=self.editor)
+        self.cult1 = Culture.objects.create(
+            culture='Maori', slug='maori', editor=self.editor)
+
         # make sure we're clean (i.e. ignore whatever Statistic's are defined 
         # in the above imported models)
         self.statistic = Statistic()
@@ -63,14 +67,13 @@ class StatisticTest(TestCase):
         """Tests the manager method .get_all ordering"""
         # create some
         self.statistic.update()
-        for i in range(1,3):
+        for i in range(1, 3):
             StatisticalValue.objects.create(
                 label="NLang",
                 model="what.ever",
                 method="count",
                 field="id",
-                value = (2 + i)
-            )
+                value=(2 + i))
         # note the list comprehension is because .values_list returns a 
         # django.db.models.query.ValuesListQuerySet which is not a normal list
         assert [_ for _ in StatisticalValue.objects.get_all("NLang")] == [2.0, 3.0, 4.0]
