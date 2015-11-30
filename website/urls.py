@@ -65,8 +65,6 @@ urlpatterns = patterns(
     # Survey
     url(r'^survey/$', SurveyIndex.as_view(),
         name="survey-index"),
-    # url(r'^survey/(?P<slug>.+)/$', SurveyCultureIndex.as_view(),
-    #     name="survey-culture-index"),
     url(r'^survey/(?P<slug>.+)/$', 'website.apps.survey.views.indexx',
         name="survey-culture-index"),
     url(r'^survey/(?P<culture>.+)/(?P<section>.+)$',

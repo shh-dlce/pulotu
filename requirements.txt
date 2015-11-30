@@ -27,3 +27,4 @@ six==1.10.0
 slugify==0.0.1
 sqlparse==0.1.18
 wsgiref==0.1.2
+mock==1.0

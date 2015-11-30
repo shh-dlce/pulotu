@@ -9,44 +9,62 @@ from website.apps.survey.models import (
 )
 
 
-class WithCompleteDatabase(TestCase):
-    """Base class for tests requiring a minimal yet complete database."""
-
+class WithEditor(TestCase):
     def setUp(self):
         self.client = Client()
         self.editor = User.objects.create_user('admin', 'admin@example.com', "test")
-        self.culture1 = Culture.objects.create(
+
+    def object(self, cls, **kw):
+        kw.setdefault('editor', self.editor)
+        return cls.objects.create(**kw)
+
+    def login(self, username="admin", password="test"):
+        self.client.login(username=username, password=password)
+
+
+class WithCompleteDatabase(WithEditor):
+    """Base class for tests requiring a minimal yet complete database."""
+
+    def setUp(self):
+        WithEditor.setUp(self)
+        self.culture1 = self.object(
+            Culture,
             culture='Maori',
-            slug='maori',
-            editor=self.editor)
-        lang = Language.objects.create(
+            slug='maori')
+        lang = self.object(
+            Language,
             language='lname',
             isocode='abc',
-            abvdcode=5,
-            editor=self.editor)
+            abvdcode=5)
         self.culture1.languages.add(lang)
-        self.culture2 = Culture.objects.create(
+        self.culture2 = self.object(
+            Culture,
             culture='English',
-            slug='english',
-            editor=self.editor)
-        self.source = Source.objects.create(
-            year=1991, author='Smith',
-            slug='Smith1991', reference='S2',
-            comment='c1', editor=self.editor)
-        cat = Category.objects.create(
+            slug='english')
+        self.source = self.object(
+            Source,
+            year=1991,
+            author='Smith',
+            slug='Smith1991',
+            reference='S2',
+            comment='c1')
+        cat = self.object(
+            Category,
             id=1,
             category='cat 1',
-            number=1,
-            editor=self.editor)
-        self.section = Section.objects.create(
+            number=1)
+        self.section = self.object(
+            Section,
             section="Test",
             category=cat,
-            slug="test",
-            editor=self.editor)
-        self.subsection = Section.objects.create(
-            section="Sub", slug="sub",
-            editor=self.editor)
-        self.question = OptionQuestion.objects.create(
+            slug="test")
+        self.subsection = self.object(
+            Section,
+            section="Sub",
+            category=cat,
+            slug="sub")
+        self.question = self.object(
+            OptionQuestion,
             id=1,
             section=self.section,
             subsection=self.subsection,
@@ -59,8 +77,7 @@ class WithCompleteDatabase(TestCase):
 (1) Moderate
 (2) High
 """,
-            information="..",
-            editor=self.editor)
+            information="..")
         self.response = TextResponse.objects.create(
             question=self.question,
             culture=self.culture1,
@@ -72,8 +89,8 @@ class WithCompleteDatabase(TestCase):
             source4=self.source,
             source5=self.source,
             response='Low')
-
-        lat = Question.objects.create(
+        lat = self.object(
+            Question,
             id=2,
             section=self.section,
             subsection=self.subsection,
@@ -81,8 +98,7 @@ class WithCompleteDatabase(TestCase):
             question='Latitude',
             simplified_question='Latitude',
             displayPublic=False,
-            information="..",
-            editor=self.editor)
+            information="..")
         FloatResponse.objects.create(
             question=lat,
             culture=self.culture1,
@@ -90,7 +106,8 @@ class WithCompleteDatabase(TestCase):
             author=self.editor,
             source1=self.source,
             response=5.5)
-        lon = Question.objects.create(
+        lon = self.object(
+            Question,
             id=3,
             section=self.section,
             subsection=self.subsection,
@@ -98,8 +115,7 @@ class WithCompleteDatabase(TestCase):
             question='Longitude',
             simplified_question='Longitude',
             displayPublic=False,
-            information="..",
-            editor=self.editor)
+            information="..")
         FloatResponse.objects.create(
             question=lon,
             culture=self.culture1,

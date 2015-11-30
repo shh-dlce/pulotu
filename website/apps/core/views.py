@@ -50,13 +50,15 @@ def sources(responses):
     return sorted(refs, key=lambda source: source.reference, reverse=False)
 
 
+def first_response(questions):
+    if questions:
+        return questions[0].response
+
+
 def latlon(cultures):
-    res = {}
-    for query in 'Latitude', 'Longitude':
-        qs = cultures.filter(question__simplified_question=query)
-        if qs:
-            res[query] = qs[0].response
-    return res.get('Latitude'), res.get('Longitude')
+    return (
+        first_response(cultures.filter(question__simplified_question='Latitude')),
+        first_response(cultures.filter(question__simplified_question='Longitude')))
 
 
 def mail(subject, message):
@@ -260,11 +262,11 @@ def details(request, slug):
                     break
             else:  # no time set
                 if not c.timeFocus:
-                    try:
-                        before = timeF.filter(
-                            question__section__number=(c.number - 1))[0].response
-                        after = timeF.filter(
-                            question__section__number=(c.number + 1))[0].response
+                    before = first_response(
+                        timeF.filter(question__section__number=(c.number - 1)))
+                    after = first_response(
+                        timeF.filter(question__section__number=(c.number + 1)))
+                    if before and after:
                         if before.find('-') is not -1 and after.find('-') is not -1:
                             d['time'] = '-'.join(
                                 [before.partition('-')[2], after.partition('-')[0]])
@@ -274,7 +276,7 @@ def details(request, slug):
                             d['time'] = before + '-' + after.partition('-')[0]
                         else:
                             d['time'] = before + '-' + after
-                    except:
+                    else:
                         d['time'] = '?'
             send.append(d)
 
@@ -320,7 +322,6 @@ def AddPublication(request):
             s.editor = request.user
             s.save()
             return redirect(reverse('about'))
-
     else:
         form = PublicationForm()
     return render_to_response(
