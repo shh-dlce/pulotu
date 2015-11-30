@@ -16,7 +16,6 @@ class Test_View_SurveyCultureIndex_NotLoggedIn(TestCase):
         self.culture2 = Culture.objects.create(culture='English', 
                                     slug='english', editor=self.editor)
 
-    
     def test_error_when_not_logged_in(self):
         url = reverse("survey-culture-index", kwargs={'slug': 'english'})
         response = self.client.get(url)
@@ -45,10 +44,8 @@ class Test_View_SurveyCultureIndex_LoggedIn(TestCase):
     
     def test_context(self):
         response = self.client.get(reverse("survey-culture-index", kwargs={'slug': 'english'}))
-        return
-        assert 'table' in response.context
+        assert 'full' in response.context
 
     def test_page(self):
         response = self.client.get(reverse("survey-culture-index", kwargs={'slug': 'maori'}))
         self.assertContains(response, self.culture1.culture)
-    

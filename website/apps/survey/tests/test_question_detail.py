@@ -3,8 +3,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from website.apps.core.models import Culture, Source, Section
-from website.apps.survey.models import Question, Response, IntegerResponse, FloatResponse, \
-    TextResponse
+from website.apps.survey.models import Question, TextResponse
 
 
 class Test_QuestionDetail(TestCase):

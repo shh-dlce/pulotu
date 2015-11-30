@@ -2,8 +2,8 @@
 ## Running the tests
 
 ```
-coverage run --source='.' --omit='website/apps/*/migrations/*' manage.py test --failfast
-coverage report
+coverage run --source='.' manage.py test --failfast
+coverage report --skip-covered -m  --omit='website/apps/*/migrations/*'
 ```
 
 ## Running flake8

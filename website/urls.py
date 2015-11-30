@@ -16,7 +16,6 @@ urlpatterns = patterns(
     url(r'^$', 'website.apps.core.views.frontPage',
         name="index"),
     url(r'^faq', TemplateView.as_view(template_name="faq.html"), name="faq"),
-    # url(r'^dataset', 'website.apps.core.views.request_form', name="dataset"),
     url(r'^dataset', TemplateView.as_view(template_name="dataset.html"), name="dataset"),
     url(r'^contactthanks', TemplateView.as_view(template_name="thankyou2.html"),
         name="thankyou2"),

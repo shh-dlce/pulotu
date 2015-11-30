@@ -238,7 +238,7 @@ def download_dataset(request):
     if request.user.is_authenticated():
         questionlist = request.POST.getlist('questions')
         if not questionlist:
-            return HttpResponse('<h1>Error, invalid POST data.</h1>')
+            return HttpResponse('<h1>Error, invalid POST data.</h1>', status=400)
 
         questions = Question.objects.all() \
             .filter(id__in=questionlist).order_by('number')
