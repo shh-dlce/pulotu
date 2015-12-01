@@ -1,30 +1,12 @@
-from django.test import TestCase
-from django.test.client import Client
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from website.apps.core.models import Culture, Section
 from website.apps.survey.models import Question
+from website.testutils import WithCompleteDatabase
 
 
-class DataMixin(object):
+class Tests(WithCompleteDatabase):
+    """Tests the survey-section-edit view"""
     def setUp(self):
-        self.editor = User.objects.create_user('admin', 'admin@example.com', "test")
-        self.culture1 = Culture.objects.create(
-            culture='Maori',
-            slug='maori',
-            editor=self.editor)
-        self.culture2 = Culture.objects.create(
-            culture='English',
-            slug='english',
-            editor=self.editor)
-        self.section = Section.objects.create(
-            section="Test",
-            slug="test",
-            editor=self.editor)
-        self.subsection = Section.objects.create(
-            section="Sub",
-            slug="sub",
-            editor=self.editor)
+        WithCompleteDatabase.setUp(self)
         self.question_int = Question.objects.create(
             section=self.section,
             subsection=self.subsection,
@@ -49,11 +31,6 @@ class DataMixin(object):
             information="",
             response_type='Text',
             editor=self.editor)
-        self.client = Client()
-
-
-class Test_View_SurveySectionEdit_NotLoggedIn(DataMixin, TestCase):
-    """Tests the survey-section-edit view"""
 
     def test_error_when_not_logged_in(self):
         url = reverse("survey-section-edit",
@@ -64,10 +41,6 @@ class Test_View_SurveySectionEdit_NotLoggedIn(DataMixin, TestCase):
                              "/accounts/login/?next=%s" % url,
                              status_code=302,
                              target_status_code=200)
-
-
-class Test_View_SurveySectionEdit_LoggedIn(DataMixin, TestCase):
-    """Tests the survey-section-edit view"""
 
     def test_404_on_missing_culture(self):
         self.client.login(username="admin", password="test")
@@ -82,6 +55,11 @@ class Test_View_SurveySectionEdit_LoggedIn(DataMixin, TestCase):
                                            kwargs={'culture': 'maori',
                                                    'section': 'fudge'}))
         self.assertEqual(response.status_code, 404)
+
+    def test_post(self):
+        self.client.login(username="admin", password="test")
+        response = self.client.post(reverse(
+            "survey-section-edit", kwargs={'culture': 'maori', 'section': 'test'}))
 
     def test_page(self):
         self.client.login(username="admin", password="test")
