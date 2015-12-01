@@ -189,9 +189,9 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     # responses & post data
     for q in Question.objects.all().order_by('number').filter(section=section_obj):
         formtype = FORM_MAP[q.response_type]
-        # manuipulate response to constrain cultures/questions
-        resp = responses.get(q.id, None)
-        s = source1.get(q.id, None)
+        # manipulate response to constrain cultures/questions
+        resp = responses.get(q.id)
+        s = source1.get(q.id)
         if resp is not None:
             resp.culture = culture_obj
             resp.question = q

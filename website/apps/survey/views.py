@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
+import csv
+from collections import defaultdict, OrderedDict
+
 from django.db.models import Count
 from django.http import Http404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.cache import cache
+
 from website.apps.core.models import Section, Culture, Category
+from website.apps.core.views import DefaultListOrderedDict, sources
 from website.apps.survey.models import Question, Response
 from website.apps.survey.forms import construct_section_forms
-from website.apps.survey.tables import SurveyIndexTable, SurveyCultureIndexTable
-from django.http import HttpResponse, HttpResponseRedirect
-import csv
-from collections import defaultdict, OrderedDict
-from website.apps.core.views import DefaultListOrderedDict, sources
-from django.core.cache import cache
+from website.apps.survey.tables import SurveyIndexTable
 
 
 def _download(filename):

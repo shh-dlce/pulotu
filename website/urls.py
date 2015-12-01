@@ -2,10 +2,11 @@ from django.conf import settings
 from django.conf.urls import *
 from django.views.generic import TemplateView, RedirectView
 from django.contrib import admin
+from django.conf.urls import patterns, include, url
+
+from sitemap import sitemaps
 from website.apps.core.views import RobotsTxt
 from website.apps.survey.views import SurveyIndex
-from django.conf.urls import patterns, include, url
-from sitemap import sitemaps
 
 admin.autodiscover()
 
@@ -70,6 +71,7 @@ urlpatterns = patterns(
     url(r'^survey/(?P<culture>.+)/(?P<section>.+)$',
         'website.apps.survey.views.SurveySectionEdit',
         name="survey-section-edit"),
+    url(r'^stats/', include('website.apps.statistics.urls')),
 
     # ------------------------------------------------------------------------ #
     # Admin
