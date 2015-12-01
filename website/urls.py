@@ -98,7 +98,7 @@ urlpatterns = patterns(
 # ------------------------------------------------------------------------ #
 # Debug Media...
 # ------------------------------------------------------------------------ #
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
 
     urlpatterns += patterns(

@@ -14,3 +14,7 @@ class Tests(WithCompleteDatabase):
     def test_about(self):
         response = self.client.get(reverse('about'))
         self.assertEqual(response.status_code, 200)
+
+    def test_sitemap(self):
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
