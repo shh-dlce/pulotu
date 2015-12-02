@@ -244,6 +244,9 @@ CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 # maximum age of persistent database connection
 CONN_MAX_AGE = 64
 
+# test discovery
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 # THIRD-PARTY SETTINGS ==========================================
 
 # Django-Security settings
