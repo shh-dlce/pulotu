@@ -157,13 +157,11 @@ INSTALLED_APPS = [
     'django_tables2',  # django-tables2: tables helper
     'watson',  # search
     'compressor',  # django-compressor for asset compression
-    'django_nvd3',  # for graphing statistics
     'captcha',
     'django_select2',
     'axes',
     # website
     'website.apps.core',  # core functionality
-    'website.apps.statistics',  # statistics
     'website.apps.survey',  # survey
 ]
 

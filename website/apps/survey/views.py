@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
+import csv
+from collections import defaultdict, OrderedDict
+
 from django.db.models import Count
 from django.http import Http404
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.shortcuts import render_to_response, get_object_or_404
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import TemplateView
 from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.cache import cache
+
 from website.apps.core.models import Section, Culture, Category
+from website.apps.core.views import DefaultListOrderedDict, sources
 from website.apps.survey.models import Question, Response
 from website.apps.survey.forms import construct_section_forms
-from website.apps.survey.tables import SurveyIndexTable, SurveyCultureIndexTable
-from django.http import HttpResponse, HttpResponseRedirect
-import csv
-from collections import defaultdict, OrderedDict
-from website.apps.core.views import DefaultListOrderedDict, sources
-from django.core.cache import cache
+from website.apps.survey.tables import SurveyIndexTable
 
 
 def _download(filename):
@@ -42,11 +44,8 @@ class SurveyIndex(TemplateView):
         for obj in Culture.objects.all():
             obj.qdone = answered.get(obj.id, 0)
             obj.qtodo = totalq - answered.get(obj.id, 0)
-            missing = 0
-            for r in Response.objects.filter(culture=obj):
-                if r.missing:
-                    missing += 1
-            obj.qmissing = missing
+            obj.qmissing = sum(
+                [1 for r in Response.objects.filter(culture=obj) if r.missing])
             object_list.append(obj)
 
         context['table'] = SurveyIndexTable(object_list)
@@ -107,42 +106,9 @@ def indexx(request, slug):
         context_instance=RequestContext(request))
 
 
-class SurveyCultureIndex(DetailView):
-    """Survey Culture Sub-Index"""
-    model = Culture
-    template_name = 'survey/survey_culture_index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(SurveyCultureIndex, self).get_context_data(**kwargs)
-        sections = []
-        # get saved responses..
-        responses = {}
-        missing = {}
-        resp = Response.objects.filter(
-            culture=kwargs['object']).select_related('question')
-        for r in resp:
-            sect_id = r.question.section_id
-            responses[sect_id] = responses.get(sect_id, 0) + 1
-            if r.missing:
-                missing[sect_id] = missing.get(sect_id, 0) + 1
-        for s in Section.objects.all().annotate(questions=Count('question')):
-            s.culture = kwargs['object']
-            s.toanswer = responses.get(s.id, 0)
-            s.qmissing = missing.get(s.id, 0)
-            if s.questions is not 0:
-                s.questions = s.questions - s.toanswer
-                sections.append(s)
-        context['table'] = SurveyCultureIndexTable(sections)
-        return context
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(SurveyCultureIndex, self).dispatch(*args, **kwargs)
-
-
 @login_required()
 def SurveySectionEdit(request, culture, section):
-    "Editing of Survey Section"
+    """Editing of Survey Section"""
     culture_obj = get_object_or_404(Culture, slug=culture)
     section_obj = get_object_or_404(Section, slug=section)
     forms = construct_section_forms(post_data=request.POST or None,
@@ -238,7 +204,7 @@ def download_dataset(request):
     if request.user.is_authenticated():
         questionlist = request.POST.getlist('questions')
         if not questionlist:
-            return HttpResponse('<h1>Error, invalid POST data.</h1>')
+            return HttpResponse('<h1>Error, invalid POST data.</h1>', status=400)
 
         questions = Question.objects.all() \
             .filter(id__in=questionlist).order_by('number')

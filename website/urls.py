@@ -2,10 +2,11 @@ from django.conf import settings
 from django.conf.urls import *
 from django.views.generic import TemplateView, RedirectView
 from django.contrib import admin
+from django.conf.urls import patterns, include, url
+
+from sitemap import sitemaps
 from website.apps.core.views import RobotsTxt
 from website.apps.survey.views import SurveyIndex
-from django.conf.urls import patterns, include, url
-from sitemap import sitemaps
 
 admin.autodiscover()
 
@@ -16,7 +17,6 @@ urlpatterns = patterns(
     url(r'^$', 'website.apps.core.views.frontPage',
         name="index"),
     url(r'^faq', TemplateView.as_view(template_name="faq.html"), name="faq"),
-    # url(r'^dataset', 'website.apps.core.views.request_form', name="dataset"),
     url(r'^dataset', TemplateView.as_view(template_name="dataset.html"), name="dataset"),
     url(r'^contactthanks', TemplateView.as_view(template_name="thankyou2.html"),
         name="thankyou2"),
@@ -66,8 +66,6 @@ urlpatterns = patterns(
     # Survey
     url(r'^survey/$', SurveyIndex.as_view(),
         name="survey-index"),
-    # url(r'^survey/(?P<slug>.+)/$', SurveyCultureIndex.as_view(),
-    #     name="survey-culture-index"),
     url(r'^survey/(?P<slug>.+)/$', 'website.apps.survey.views.indexx',
         name="survey-culture-index"),
     url(r'^survey/(?P<culture>.+)/(?P<section>.+)$',
@@ -99,7 +97,7 @@ urlpatterns = patterns(
 # ------------------------------------------------------------------------ #
 # Debug Media...
 # ------------------------------------------------------------------------ #
-if settings.DEBUG:
+if settings.DEBUG:  # pragma: no cover
     import debug_toolbar
 
     urlpatterns += patterns(

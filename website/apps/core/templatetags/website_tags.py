@@ -2,7 +2,6 @@ from django import template
 from django.core.urlresolvers import resolve
 from django.utils.safestring import mark_safe
 from website.apps.core.models import Language
-from website.apps.core.templatetags.ifinstalled import do_ifinstalled
 import re
 
 register = template.Library()
@@ -140,4 +139,3 @@ def active(context, view):
 
 
 register.simple_tag(takes_context=True)(active)
-register.tag('ifinstalled', do_ifinstalled)

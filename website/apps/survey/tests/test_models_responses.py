@@ -1,17 +1,16 @@
-from django.contrib.auth.models import User
-from django.test import TestCase
 from textwrap import dedent
 from website.apps.core.models import Culture, Source, Section
 from website.apps.survey.models import Question, OptionQuestion, Response
 from website.apps.survey.models import IntegerResponse, FloatResponse, TextResponse, \
     OptionResponse
+from website.testutils import WithEditor
 
 
-class ModelsMixin(object):
+class WithBasicData(WithEditor):
     """Tests the Polymorphic Models"""
 
     def setUp(self):
-        self.editor = User.objects.create(username='admin')
+        WithEditor.setUp(self)
         self.source = Source.objects.create(
             year=1991, author='Smith',
             slug='Smith1991', reference='S2',
@@ -34,15 +33,11 @@ class ModelsMixin(object):
             subsection=self.subsection,
             number=1, question='Where are you?',
             information="..", editor=self.editor)
-        self.create()
-
-    def create(self):
-        # subclass in children.
-        pass
 
 
-class TestResponse(ModelsMixin, TestCase):
-    def create(self):
+class TestResponse(WithBasicData):
+    def setUp(self):
+        WithBasicData.setUp(self)
         r = Response.objects.create(
             question=self.question,
             culture=self.culture,
@@ -63,17 +58,17 @@ class TestResponse(ModelsMixin, TestCase):
         assert r.source1 == self.source
 
 
-class TestIntegerResponse(ModelsMixin, TestCase):
-    def create(self, response=99):
+class TestIntegerResponse(WithBasicData):
+    def setUp(self):
+        WithBasicData.setUp(self)
         r = IntegerResponse.objects.create(
             question=self.question,
             culture=self.culture,
             author=self.editor,
             source1=self.source,
-            response=response
+            response=99
         )
         r.save()
-        return r
 
     def test_repr(self):
         r = Response.objects.all()[0]
@@ -97,21 +92,18 @@ class TestIntegerResponse(ModelsMixin, TestCase):
         assert r.source1 == self.source
         assert r.response == 99
 
-    def test_cant_get_from_subclass(self):
-        assert len(FloatResponse.objects.all()) == 0
 
-
-class TestFloatResponse(ModelsMixin, TestCase):
-    def create(self, response=99.9):
+class TestFloatResponse(WithBasicData):
+    def setUp(self):
+        WithBasicData.setUp(self)
         r = FloatResponse.objects.create(
             question=self.question,
             culture=self.culture,
             author=self.editor,
             source1=self.source,
-            response=response
+            response=99.9
         )
         r.save()
-        return r
 
     def test_repr(self):
         r = Response.objects.all()[0]
@@ -136,17 +128,17 @@ class TestFloatResponse(ModelsMixin, TestCase):
         assert r.response == 99.9
 
 
-class TestTextResponse(ModelsMixin, TestCase):
-    def create(self, response="This is \n Some Text"):
+class TestTextResponse(WithBasicData):
+    def setUp(self):
+        WithBasicData.setUp(self)
         r = TextResponse.objects.create(
             question=self.question,
             culture=self.culture,
             author=self.editor,
             source1=self.source,
-            response=response
+            response="This is \n Some Text"
         )
         r.save()
-        return r
 
     def test_repr(self):
         r = Response.objects.all()[0]
@@ -171,18 +163,18 @@ class TestTextResponse(ModelsMixin, TestCase):
         assert r.response == "This is \n Some Text"
 
 
-class TestOptionResponse(ModelsMixin, TestCase):
-    def create(self, response="0"):
+class TestOptionResponse(WithBasicData):
+    def setUp(self):
+        WithBasicData.setUp(self)
         r = OptionResponse.objects.create(
             question=self.question,
             culture=self.culture,
             author=self.editor,
             source1=self.source,
-            response=response,
+            response="0",
             response_text="blah blah blah"
         )
         r.save()
-        return r
 
     def test_repr(self):
         r = Response.objects.all()
@@ -233,10 +225,11 @@ class TestOptionResponse(ModelsMixin, TestCase):
         assert r.response_text == 'no'
 
 
-class TestHeterogenousResponses(ModelsMixin, TestCase):
+class TestHeterogenousResponses(WithBasicData):
     """Test that we can get a heterogenous mix of responses"""
 
-    def create(self):
+    def setUp(self):
+        WithBasicData.setUp(self)
         self.responses = []
         self.question2 = Question.objects.create(
             section=self.section,

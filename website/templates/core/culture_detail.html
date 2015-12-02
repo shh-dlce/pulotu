@@ -88,8 +88,7 @@
 							{% if n.response_text %} {{n.response_text|nobrackets}} {% else %} {{n.response}} {% endif %}
 							<small class="source-bracket">
 								(</small><a href="" class="source-link" id="{{n.question.question|hyphenate}}-sourcelink">Source</a><small href="" class="source-bracket">)</small></td>
-							</td>
-	
+
 						</tr>
 						<tr class="sourceRow" id = "{{n.question.question|hyphenate}}-source">
 						<td class="sourcein" colspan="2"><a href="#{{n.source1.slug}}"> {{n.source1}}</a>{% if n.page1%}, pp. {{n.page1}}{%endif%}{% if n.source2 %}<br><a href="#{{n.source2.slug}}"> {{n.source2}}</a>{%if n.page2%}, pp. {{n.page2}}{% endif %}{% endif %}{% if n.source3 %}<br><a href="#{{n.source3.slug}}"> {{n.source3}}</a>{%if n.page3 %}, pp. {{n.page3}}{%endif%}{%endif%}{%if n.source4%}<br><a href="#{{n.source4.slug}}"> {{n.source4}}</a>{%if n.page4%}, pp. {{n.page4}}{%endif%}{%endif%}{%if n.source5%}<br><a href="#{{n.source5.slug}}"> {{n.source5}}</a>{%if n.page5%}, pp. {{n.page5}}{%endif%}{%endif%}</td>

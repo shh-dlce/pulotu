@@ -24,14 +24,6 @@ class SourceForm(forms.ModelForm):
         exclude = ('id', 'editor', 'added', 'slug', 'bibtex')
 
 
-class RegistrationForm(forms.Form):
-    name = forms.CharField()
-    affiliation = forms.CharField()
-    email = forms.EmailField()
-    reason = forms.CharField(label='Reason for requesting dataset', widget=forms.Textarea)
-    captcha = CaptchaField()
-
-
 class ContactForm(forms.Form):
     name = forms.CharField()
     email = forms.EmailField()

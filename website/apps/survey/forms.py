@@ -172,9 +172,8 @@ FORM_MAP = {
 
 def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     """Constructs a form for the given culture, section, with the specified post data"""
-    # get all questions for the section and culture.
-    assert culture_obj is not None, "culture object cannot be None."
-    assert section_obj is not None, "section object cannot be None."
+    assert culture_obj
+    assert section_obj
 
     forms = []
 
@@ -189,9 +188,9 @@ def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     # responses & post data
     for q in Question.objects.all().order_by('number').filter(section=section_obj):
         formtype = FORM_MAP[q.response_type]
-        # manuipulate response to constrain cultures/questions
-        resp = responses.get(q.id, None)
-        s = source1.get(q.id, None)
+        # manipulate response to constrain cultures/questions
+        resp = responses.get(q.id)
+        s = source1.get(q.id)
         if resp is not None:
             resp.culture = culture_obj
             resp.question = q

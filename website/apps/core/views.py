@@ -11,9 +11,7 @@ from django.core.urlresolvers import reverse
 from website.apps.core.models import (
     Source, Culture, Section, Category, Glossary, Publication,
 )
-from website.apps.core.forms import (
-    CultureForm, SourceForm, RegistrationForm, ContactForm, PublicationForm,
-)
+from website.apps.core.forms import CultureForm, SourceForm, ContactForm, PublicationForm
 from website.apps.survey.models import Question, Response
 import json
 from axes.utils import reset
@@ -52,14 +50,15 @@ def sources(responses):
     return sorted(refs, key=lambda source: source.reference, reverse=False)
 
 
+def first_response(questions):
+    if questions:
+        return questions[0].response
+
+
 def latlon(cultures):
-    lat, lon = None, None
-    try:
-        lat = cultures.filter(question__simplified_question='Latitude')[0].response
-        lon = cultures.filter(question__simplified_question='Longitude')[0].response
-    except:  # FIXME: what exactly can go wrong here?
-        pass
-    return lat, lon
+    return (
+        first_response(cultures.filter(question__simplified_question='Latitude')),
+        first_response(cultures.filter(question__simplified_question='Longitude')))
 
 
 def mail(subject, message):
@@ -155,10 +154,11 @@ def compareCultures(request):
     if request.is_ajax():
         toRetrieve = request.GET.get('question')
         data = []
-        try:
-            quest = Question.objects.all().filter(question__exact=toRetrieve)[0]
-        except:  # FIXME: IndexError?
-            quest = Question.objects.all().filter(simplified_question=toRetrieve)[0]
+        quest = Question.objects.all().filter(question__exact=toRetrieve)
+        if not quest:
+            quest = Question.objects.all().filter(simplified_question=toRetrieve)
+        assert quest
+        quest = quest[0]
         startsAtZero = False
         for a in quest.get_choices():
             if any("0" in s for s in a):
@@ -229,6 +229,7 @@ def details(request, slug):
     timeF = queryset \
         .filter(question__section__section__contains='Time Focus') \
         .order_by('question__section__number')
+    latitude, longitude = latlon(queryset)
 
     fullDict = defaultdict(list)
 
@@ -250,35 +251,35 @@ def details(request, slug):
             except:
                 subsectionDict[str(section)].append('')
 
-            if subsectionDict:
-                fullDict[str(c)].append(OrderedDict(subsectionDict))
-                d = {'category': c}
+        if subsectionDict:
+            fullDict[str(c)].append(OrderedDict(subsectionDict))
 
-                for t in timeF:
-                    if c.number is t.question.subsection.number and not c.timeFocus:
-                        d['time'] = t.response
-                        break
-                else:  # no time set
-                    if not c.timeFocus:
-                        try:
-                            before = timeF.filter(
-                                question__section__number=(c.number - 1))[0].response
-                            after = timeF.filter(
-                                question__section__number=(c.number + 1))[0].response
-                            if before.find('-') is not -1 and after.find('-') is not -1:
-                                d['time'] = '-'.join(
-                                    [before.partition('-')[2], after.partition('-')[0]])
-                            elif before.find('-') is not -1:
-                                d['time'] = before.partition('-')[2] + '-' + after
-                            elif after.find('-') is not -1:
-                                d['time'] = before + '-' + after.partition('-')[0]
-                            else:
-                                d['time'] = before + '-' + after
-                        except:
-                            d['time'] = '?'
-                send.append(d)
+            d = {'category': c}
 
-    latitude, longitude = latlon(queryset)
+            for t in timeF:
+                if c.number is t.question.subsection.number and not c.timeFocus:
+                    d['time'] = t.response
+                    break
+            else:  # no time set
+                if not c.timeFocus:
+                    before = first_response(
+                        timeF.filter(question__section__number=(c.number - 1)))
+                    after = first_response(
+                        timeF.filter(question__section__number=(c.number + 1)))
+                    if before and after:
+                        if before.find('-') is not -1 and after.find('-') is not -1:
+                            d['time'] = '-'.join(
+                                [before.partition('-')[2], after.partition('-')[0]])
+                        elif before.find('-') is not -1:
+                            d['time'] = before.partition('-')[2] + '-' + after
+                        elif after.find('-') is not -1:
+                            d['time'] = before + '-' + after.partition('-')[0]
+                        else:
+                            d['time'] = before + '-' + after
+                    else:
+                        d['time'] = '?'
+            send.append(d)
+
     res = render_to_response(
         'core/culture_detail.html',
         {
@@ -321,7 +322,6 @@ def AddPublication(request):
             s.editor = request.user
             s.save()
             return redirect(reverse('about'))
-
     else:
         form = PublicationForm()
     return render_to_response(
@@ -344,28 +344,6 @@ def contact_form(request):
         form = ContactForm()
 
     return render(request, "contact.html", {"form": form})
-
-
-def request_form(request):
-    from website.apps.survey.views import download_dataset
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            affiliation = form.cleaned_data['affiliation']
-            email = form.cleaned_data['email']
-            reason = form.cleaned_data['reason']
-            message = 'Name: ' + name + '\n\nEmail: ' + email + \
-                      '\n\nAffiliation: ' + affiliation + \
-                      '\n\nReason for requesting dataset: ' + reason
-            mail("A user has downloaded the Pulotu dataset", message)
-            if cache.get('public') is not None:
-                return cache.get('public')
-            response = download_dataset(request)
-            return response
-    else:
-        form = RegistrationForm()
-    return render(request, "dataset.html", {"form": form})
 
 
 @login_required()

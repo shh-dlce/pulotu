@@ -12,11 +12,8 @@
 		{% for field in form %}
 		<tr>
 			<td>
-			
 			{{field.label_tag}} <br>
-			<div class="helpT">{{field.help_text}}<div>
-			
-			
+			<div class="helpT">{{field.help_text}}</div>
 			</td>
 		<td {% if field.errors %}class="error"{% endif %}>
 						{{ field }}
