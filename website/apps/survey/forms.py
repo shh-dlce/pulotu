@@ -15,8 +15,8 @@ class ResponseForm(forms.ModelForm):
     # WARNING - this form does NOT allow you to edit the culture or the question!
     def __init__(self, *args, **kwargs):
         super(ResponseForm, self).__init__(*args, **kwargs)
-        self.fields['question'].widget.attrs['readonly'] = True
-        self.fields['culture'].widget.attrs['readonly'] = True
+        self.fields['question'].widget.attrs['readonly'] = 'True'
+        self.fields['culture'].widget.attrs['readonly'] = 'True'
 
     def clean_culture(self):
         return self.initial['culture']
