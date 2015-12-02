@@ -115,7 +115,6 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'axes.middleware.FailedLoginMiddleware',
 ]
 
 ROOT_URLCONF = 'website.urls'
@@ -151,7 +150,6 @@ INSTALLED_APPS = [
     'django.contrib.admindocs',
 
     # third-party
-    'south',  # south: database migrations
     'reversion',  # reversion: object version control.
     'djangosecure',  # django-secure: Security helper
     'django_tables2',  # django-tables2: tables helper
@@ -159,7 +157,6 @@ INSTALLED_APPS = [
     'compressor',  # django-compressor for asset compression
     'captcha',
     'django_select2',
-    'axes',
     # website
     'website.apps.core',  # core functionality
     'website.apps.survey',  # survey
