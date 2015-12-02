@@ -12,7 +12,7 @@ from website.apps.survey.models import (
 class WithEditor(TestCase):
     def setUp(self):
         self.client = Client()
-        self.editor = User.objects.create_user('admin', 'admin@example.com', "test")
+        self.editor = User.objects.create_superuser('admin', 'admin@example.com', "test")
 
     def object(self, cls, **kw):
         kw.setdefault('editor', self.editor)
