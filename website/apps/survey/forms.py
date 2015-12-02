@@ -172,9 +172,8 @@ FORM_MAP = {
 
 def construct_section_forms(post_data=None, culture_obj=None, section_obj=None):
     """Constructs a form for the given culture, section, with the specified post data"""
-    # get all questions for the section and culture.
-    assert culture_obj is not None, "culture object cannot be None."
-    assert section_obj is not None, "section object cannot be None."
+    assert culture_obj
+    assert section_obj
 
     forms = []
 

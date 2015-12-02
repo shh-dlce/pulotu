@@ -71,7 +71,6 @@ urlpatterns = patterns(
     url(r'^survey/(?P<culture>.+)/(?P<section>.+)$',
         'website.apps.survey.views.SurveySectionEdit',
         name="survey-section-edit"),
-    url(r'^stats/', include('website.apps.statistics.urls')),
 
     # ------------------------------------------------------------------------ #
     # Admin

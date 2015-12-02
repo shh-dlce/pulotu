@@ -3,7 +3,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from polymorphic import PolymorphicModel, ShowFieldType
 from website.apps.core.models import TrackedModel, Section, Culture, Source
-from website.apps.statistics import statistic
 
 OPTION_REGEX = re.compile(r"""^\s*?\((.*?)\)\s+(.*)$""", re.MULTILINE)
 
@@ -195,7 +194,3 @@ class OptionResponse(Response):
 
     class Meta:
         db_table = 'responses_options'
-
-
-statistic.register("Number of Questions", Question, graph=3)
-statistic.register("Number of Responses", Response, graph=4)
