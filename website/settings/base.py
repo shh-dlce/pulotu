@@ -24,7 +24,7 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-        'TEST_NAME': None,
+        'TEST': {'NAME': None},
     }
 }
 
@@ -255,9 +255,6 @@ SECURE_BROWSER_XSS_FILTER = True  # enable XSS protection
 SESSION_COOKIE_SECURE = False  # can't login with True?
 SESSION_COOKIE_HTTPONLY = False  # can't login with True?
 SECURE_CONTENT_TYPE_NOSNIFF = True
-
-# South
-#SOUTH_TESTS_MIGRATE = False  # just use syncdb
 
 # Static Sitemaps
 STATICSITEMAPS_ROOT_SITEMAP = 'website.sitemap.sitemap'

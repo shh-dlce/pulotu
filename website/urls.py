@@ -91,7 +91,7 @@ urlpatterns = patterns(
         name="password_reset_confirm"),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', name="logout"),
     url(r'^favicon\.ico$',
-        RedirectView.as_view(url='%s/favicon.ico' % settings.STATIC_URL)),
+        RedirectView.as_view(permanent=True, url='%s/favicon.ico' % settings.STATIC_URL)),
 )
 
 # ------------------------------------------------------------------------ #

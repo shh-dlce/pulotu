@@ -1,5 +1,6 @@
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from string import ascii_uppercase
+import json
 
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -8,17 +9,16 @@ from django.shortcuts import render, redirect, render_to_response, get_object_or
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.contrib.auth.forms import *
+from django.contrib.auth.views import password_reset, password_reset_complete
+from django.core.mail import send_mail, BadHeaderError
+from django.core.cache import cache
+
 from website.apps.core.models import (
     Source, Culture, Section, Category, Glossary, Publication,
 )
 from website.apps.core.forms import CultureForm, SourceForm, ContactForm, PublicationForm
 from website.apps.survey.models import Question, Response
-import json
-from axes.utils import reset
-from django.contrib.auth.forms import *
-from django.contrib.auth.views import password_reset, password_reset_complete
-from django.core.mail import send_mail, BadHeaderError
-from django.core.cache import cache
 
 #
 # FIXME: can we send email with this from address?
@@ -94,6 +94,7 @@ def resetPW(request):
 
 
 def PWreset(request):
+    from axes.utils import reset
     reset(ip=request.META['REMOTE_ADDR'])
     reset(username=request.user.username)
     return password_reset_complete(request)
