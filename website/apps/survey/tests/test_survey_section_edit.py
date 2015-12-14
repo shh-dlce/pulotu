@@ -58,7 +58,7 @@ class Tests(WithCompleteDatabase):
 
     def test_post(self):
         self.client.login(username="admin", password="test")
-        response = self.client.post(reverse(
+        self.client.post(reverse(
             "survey-section-edit", kwargs={'culture': 'maori', 'section': 'test'}))
 
     def test_page(self):

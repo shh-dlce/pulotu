@@ -1,8 +1,6 @@
 # coding: utf8
 from __future__ import unicode_literals
 
-from django.template import Template, Context
-
 from website.apps.core.models import Language
 from website.testutils import WithEditor
 

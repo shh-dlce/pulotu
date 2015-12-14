@@ -7,7 +7,7 @@ from website.apps.core.models import Culture
 
 class Test_CultureIndex(TestCase):
     """Tests the culture-index view"""
-    
+
     def setUp(self):
         self.client = Client()
         self.url = reverse("culture-index")
@@ -20,7 +20,7 @@ class Test_CultureIndex(TestCase):
             culture='English',
             slug='english',
             editor=self.editor)
-        
+
     def test_index(self):
         response = self.client.get(self.url)
         self.assertContains(response, self.culture1.culture)

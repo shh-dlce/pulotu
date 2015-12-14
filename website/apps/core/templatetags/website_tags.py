@@ -71,9 +71,9 @@ def link_ethnologue(lang):
 def link_abvd(lang):
     """Links to the ABVD"""
     if isinstance(lang, Language) and lang.abvdcode:
-        return "http://language.psy.auckland.ac.nz/austronesian/language.php?id=%s" % lang.abvdcode
-    else:
-        return ""
+        return "http://language.psy.auckland.ac.nz/austronesian/language.php?id=%s" \
+               % lang.abvdcode
+    return ""
 
 
 @register.filter
@@ -81,8 +81,7 @@ def link_olac(lang):
     """Links to the OLAC project"""
     if isinstance(lang, Language) and lang.isocode:
         return "http://search.language-archives.org/search.html?q=%s" % lang.isocode
-    else:
-        return ""
+    return ""
 
 
 @register.filter
@@ -90,8 +89,7 @@ def link_llmap(lang):
     """Links to LLMap"""
     if isinstance(lang, Language) and lang.isocode:
         return "http://llmap.org/languages/%s.html" % lang.isocode
-    else:
-        return ""
+    return ""
 
 
 @register.filter
@@ -99,8 +97,7 @@ def link_multitree(lang):
     """Links to MultiTree"""
     if isinstance(lang, Language) and lang.isocode:
         return "http://multitree.org/codes/%s" % lang.isocode
-    else:
-        return ""
+    return ""
 
 
 @register.filter
@@ -108,8 +105,7 @@ def link_glottolog(lang):
     """Links to Glottolog"""
     if isinstance(lang, Language) and lang.isocode:
         return "http://glottolog.org/resource/languoid/iso/%s" % lang.isocode
-    else:
-        return ""
+    return ""
 
 
 @register.filter
@@ -120,10 +116,10 @@ def language_map(lang):
 
     if isinstance(lang, Language) and lang.isocode:
         return mark_safe("""
-        <img src="http://llmap.org/language/%s.png?width=%d&height=%d" alt="Map of %s: courtesy of LL-MAP" />
+        <img src="http://llmap.org/language/%s.png?width=%d&height=%d"
+             alt="Map of %s: courtesy of LL-MAP" />
         """ % (lang.isocode, WIDTH, HEIGHT, unicode(lang)))
-    else:
-        return ""
+    return ""
 
 
 def active(context, view):
@@ -134,8 +130,7 @@ def active(context, view):
 
     if resolved.view_name == view:
         return ' class="active" '
-    else:
-        return ''
+    return ''
 
 
 register.simple_tag(takes_context=True)(active)

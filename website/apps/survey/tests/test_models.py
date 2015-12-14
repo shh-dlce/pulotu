@@ -27,7 +27,6 @@ class TestOptionQuestion(TestCase):
             editor=self.editor
         )
         q.save()
-        #assert q.response_type == Question.RESPONSETYPE_OPTION
 
     def test_save_override(self):
         """Test that .save() overrides the response_type correctly"""
@@ -44,7 +43,6 @@ class TestOptionQuestion(TestCase):
             editor=self.editor
         )
         q.save()
-        #assert q.response_type == Question.RESPONSETYPE_OPTION
 
     def test_options_parsing_q8(self):
         # question 8 has three options ?,0,1
@@ -73,9 +71,9 @@ class TestOptionQuestion(TestCase):
             question="Seasonal variation in rainfall:",
             options=dedent("""
             (?) Missing data
-            (0)	Low	
+            (0)	Low
             (1)	Moderate
-            (2)	High 
+            (2)	High
             """),
             section=self.section,
             subsection=self.subsection,
@@ -89,7 +87,7 @@ class TestOptionQuestion(TestCase):
         assert choices[3] == ('2', 'High'), 'Got %r' % choices
 
     def test_options_parsing_q14(self):
-        # question 14 has five options ?, 0, 1, 2, 3, 
+        # question 14 has five options ?, 0, 1, 2, 3,
         # with complex text descriptions
         q = OptionQuestion.objects.create(
             number=14,
@@ -98,7 +96,7 @@ class TestOptionQuestion(TestCase):
             (?) Missing data
             (0) Absent or not reported in substantial description of indigenous religion
             (1) High god present, but not active in human affairs
-            (2) High god present and active in human affairs, but not supportive of human morality
+            (2) High god present and active in human affairs, but not supportive of human
             (3) High god present, active in human affairs and supportive of human morality
             """),
             section=self.section,
@@ -106,20 +104,23 @@ class TestOptionQuestion(TestCase):
             editor=self.editor
         )
         choices = q.get_choices()
-        assert len(choices) == 5
-        assert choices[0] == ('?', 'Missing data'), \
-            'Got %r' % choices
-        assert choices[1] == (
-        '0', 'Absent or not reported in substantial description of indigenous religion'), \
-            'Got %r' % choices
-        assert choices[2] == ('1', 'High god present, but not active in human affairs'), \
-            'Got %r' % choices
-        assert choices[3] == ('2',
-                              'High god present and active in human affairs, but not supportive of human morality'), \
-            'Got %r' % choices
-        assert choices[4] == ('3',
-                              'High god present, active in human affairs and supportive of human morality'), \
-            'Got %r' % choices
+        self.assertEquals(len(choices), 5)
+        self.assertEquals(choices[0], ('?', 'Missing data'))
+        self.assertEquals(
+            choices[1],
+            ('0',
+             'Absent or not reported in substantial description of indigenous religion'))
+        self.assertEquals(
+            choices[2], ('1', 'High god present, but not active in human affairs'))
+        self.assertEquals(
+            choices[3],
+            ('2',
+             'High god present and active in human affairs, but not supportive of human'))
+        self.assertEquals(
+            choices[4],
+            ('3',
+             'High god present, active in human affairs and supportive of '
+             'human morality'))
 
     def test_options_parsing_q55(self):
         # question 55 has six options ?, 1, 2, 3, 4,
@@ -127,12 +128,12 @@ class TestOptionQuestion(TestCase):
             number=55,
             question="Land-based hunting performed by individuals:",
             options=dedent("""
-            (?) Missing Data 
-            (1)	Absent 
+            (?) Missing Data
+            (1)	Absent
             (2)	Minor
-            (3)	Medium 
-            (4)	A principal or major food source 
-            (5)	The principal food 
+            (3)	Medium
+            (4)	A principal or major food source
+            (5)	The principal food
             """),
             section=self.section,
             subsection=self.subsection,

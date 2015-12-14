@@ -24,4 +24,4 @@ class Test_View_SurveyIndex_NotLoggedIn(WithCompleteDatabase):
 
         response = self.client.post(reverse('download_references'))
         self.assertEqual(response.status_code, 200)
-        _ = self.client.post(reverse('download_references'))
+        self.client.post(reverse('download_references'))

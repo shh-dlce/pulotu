@@ -15,8 +15,7 @@ class Test_CultureIndex(WithCompleteDatabase):
         url = reverse("culture-detail", kwargs={'slug': 'english'})
         response = self.client.get(url)
         self.assertContains(response, 'English')
-    
+
     def test_has_responses(self):
         url = reverse("culture-detail", kwargs={'slug': 'maori'})
-        response = self.client.get(url)
-        #assert 'table' in response.context
+        self.client.get(url)
